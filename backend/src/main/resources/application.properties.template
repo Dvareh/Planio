@@ -1,0 +1,8 @@
+spring.application.name=planio
+
+spring.datasource.driver-class-name={Driver}
+spring.datasource.url={URL}
+spring.datasource.username={Username}
+spring.datasource.password={Password}
+
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.{Dialect}
