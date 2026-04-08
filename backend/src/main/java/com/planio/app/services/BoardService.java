@@ -6,12 +6,15 @@ import com.planio.app.entity.User;
 import com.planio.app.repositories.BoardRepository;
 import com.planio.app.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BoardService {
 
     private final BoardRepository boardRepository;
@@ -26,6 +29,7 @@ public class BoardService {
     }
 
     public BoardDTO createBoard(BoardDTO boardDTO) {
+        log.info("Creating board: {}", boardDTO.getName());
         User owner = userRepository.findById(boardDTO.getOwnerId()).orElseThrow();
 
         Board board = Board.builder()
@@ -34,10 +38,15 @@ public class BoardService {
                 .participants(new ArrayList<>())
                 .build();
 
-        return mapToDTO(boardRepository.save(board));
+        Board saved = boardRepository.save(board);
+
+        log.info("Board created with id: {}", saved.getId());
+
+        return mapToDTO(saved);
     }
 
     public void addParticipant(Long boardId, String email) {
+        log.info("Adding {} to board {}", email, boardId);
         Board board = boardRepository.findById(boardId).orElseThrow();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -45,5 +54,37 @@ public class BoardService {
         board.getParticipants().add(user);
         boardRepository.save(board);
 
+    }
+
+    public List<BoardDTO> getAllBoards() {
+        log.info("Getting all boards");
+        return boardRepository.findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
+    public BoardDTO getBoardById(Long boardId) {
+        log.info("Getting board with id: {}", boardId);
+        return  boardRepository.findById(boardId).map(this::mapToDTO)
+                .orElseThrow(() -> new RuntimeException("Board not found"));
+    }
+
+    public BoardDTO update(Long id, BoardDTO boardDTO) {
+        log.info("Updating board id: {}", id);
+
+        Board board = boardRepository.findById(id).orElseThrow();
+        board.setName(boardDTO.getName());
+        Board updated = boardRepository.save(board);
+
+        log.info("Board updated id: {}", updated.getId());
+
+        return mapToDTO(updated);
+    }
+
+    public void delete(Long id) {
+        log.warn("Deleting board id: {}", id);
+
+        boardRepository.deleteById(id);
     }
 }
