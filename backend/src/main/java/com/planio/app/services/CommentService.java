@@ -6,6 +6,7 @@ import com.planio.app.repositories.CommentRepository;
 import com.planio.app.repositories.TaskRepository;
 import com.planio.app.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CommentService {
 
     private final CommentRepository commentRepository;
@@ -20,6 +22,7 @@ public class CommentService {
     private final UserRepository userRepository;
 
     public CommentDTO create(CommentDTO commentDTO) {
+        log.info("Creating comment for task: {}", commentDTO.getTaskId());
         Comment comment = Comment.builder()
                 .text(commentDTO.getText())
                 .task(taskRepository.findById(commentDTO.getTaskId()).orElseThrow())
@@ -27,7 +30,11 @@ public class CommentService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return mapToDTO(commentRepository.save(comment));
+        Comment saved = commentRepository.save(comment);
+
+        log.info("Comment created with id: {}", saved.getId());
+
+        return mapToDTO(saved);
     }
 
     public List<CommentDTO> getByTask(Long taskId) {
@@ -35,6 +42,12 @@ public class CommentService {
                 .stream()
                 .map(this::mapToDTO)
                 .toList();
+    }
+
+    public void delete(Long id) {
+        log.warn("Deleting comment id: {}", id);
+
+        commentRepository.deleteById(id);
     }
 
     private CommentDTO mapToDTO(Comment comment) {
