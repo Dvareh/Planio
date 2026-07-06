@@ -3,6 +3,7 @@ package com.planio.app.services;
 import com.planio.app.dto.AuthDTO;
 import com.planio.app.dto.LoginDTO;
 import com.planio.app.dto.RegisterDTO;
+import com.planio.app.entity.Roles;
 import com.planio.app.entity.User;
 import com.planio.app.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class AuthService {
                 .username(registerDTO.getUsername())
                 .email(registerDTO.getEmail())
                 .password(passwordEncoder.encode(registerDTO.getPassword()))
+                .role(Roles.USER)
                 .build();
 
         userRepository.save(user);

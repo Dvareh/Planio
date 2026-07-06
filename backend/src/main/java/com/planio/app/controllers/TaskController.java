@@ -2,11 +2,13 @@ package com.planio.app.controllers;
 
 
 import com.planio.app.dto.TaskDTO;
+import com.planio.app.entity.TaskStatus;
 import com.planio.app.services.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,8 +35,15 @@ public class TaskController {
 
     @Operation(summary = "Get all tasks")
     @GetMapping
-    public List<TaskDTO> getAll() {
-        return taskService.getAll();
+    public Page<TaskDTO> getTasks(
+            @RequestParam(required = false) TaskStatus status,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "dueDate") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        return taskService.getTasks(status, search, page, size, sortBy, direction);
     }
 
     @Operation(summary = "Update task")
@@ -54,5 +63,11 @@ public class TaskController {
     @GetMapping("/my")
     public List<TaskDTO> getMyTasks() {
         return taskService.getMyTasks();
+    }
+
+    @PutMapping("/{taskId}/assign/{userId}")
+    public TaskDTO assignTask(@PathVariable Long taskId,
+                              @PathVariable Long userId) {
+        return taskService.assignTask(taskId, userId);
     }
 }

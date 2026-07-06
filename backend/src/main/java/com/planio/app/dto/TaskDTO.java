@@ -1,5 +1,6 @@
 package com.planio.app.dto;
 
+import com.planio.app.entity.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -17,7 +18,9 @@ public class TaskDTO {
 
     private LocalDate dueDate;
 
-    private String status;
+    private TaskStatus status;
 
     private Long boardId;
+
+    private Long assignedUserId;
 }
