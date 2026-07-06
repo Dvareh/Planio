@@ -4,13 +4,21 @@ package com.planio.app.services;
 import com.planio.app.dto.TaskDTO;
 import com.planio.app.entity.Board;
 import com.planio.app.entity.Task;
+import com.planio.app.entity.TaskStatus;
 import com.planio.app.entity.User;
 import com.planio.app.exceptions.ObjectNotFoundException;
 import com.planio.app.repositories.BoardRepository;
 import com.planio.app.repositories.TaskRepository;
+import com.planio.app.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -22,6 +30,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final BoardRepository boardRepository;
+    private final UserRepository userRepository;
     private final CurrentUserService currentUserService;
     private final BoardAccessService boardAccessService;
 
@@ -33,6 +42,9 @@ public class TaskService {
         dto.setDueDate(task.getDueDate());
         dto.setStatus(task.getStatus());
         dto.setBoardId(task.getBoard().getId());
+        if (task.getAssignedUser() != null) {
+            dto.setAssignedUserId(task.getAssignedUser().getId());
+        }
         return dto;
     }
 
@@ -44,14 +56,22 @@ public class TaskService {
         Board board = boardRepository.findById(taskDTO.getBoardId())
                 .orElseThrow(() -> new ObjectNotFoundException("Board", taskDTO.getBoardId()));
 
+        User assignedUser = null;
+
+        if (taskDTO.getAssignedUserId() != null) {
+            assignedUser = userRepository.findById(taskDTO.getAssignedUserId())
+                    .orElseThrow(() -> new ObjectNotFoundException("User", taskDTO.getAssignedUserId()));
+        }
+
         boardAccessService.checkAccess(board, user);
 
         Task task = Task.builder()
                 .title(taskDTO.getTitle())
                 .description(taskDTO.getDescription())
                 .dueDate(taskDTO.getDueDate())
-                .status(taskDTO.getStatus())
+                .status(taskDTO.getStatus() != null ? taskDTO.getStatus() : TaskStatus.TODO)
                 .board(board)
+                .assignedUser(assignedUser)
                 .build();
 
 
@@ -74,16 +94,36 @@ public class TaskService {
         return mapToDTO(task);
     }
 
-    public List<TaskDTO> getAll() {
-        log.info("Fetching all tasks");
+    public Page<TaskDTO> getTasks(TaskStatus status,
+                                  String search,
+                                  int page,
+                                  int size,
+                                  String sortBy,
+                                  String direction) {
 
-        User user = currentUserService.getCurrentUser();
+        log.info("Fetching tasks: status={}, search={}, page={}, size={}, sortBy={}, direction={}",
+                status, search, page, size, sortBy, direction);
 
-        return taskRepository.findAll()
-                .stream()
-                .filter(task -> boardAccessService.hasAccess(task.getBoard(), user))
-                .map(this::mapToDTO)
-                .toList();
+        Sort sort = Sort.by(
+                direction.equalsIgnoreCase("desc")
+                        ? Sort.Direction.DESC
+                        : Sort.Direction.ASC,
+                sortBy
+        );
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Task> tasks;
+
+        if (search != null && !search.isEmpty()) {
+            tasks = taskRepository.findByTitleContainingIgnoreCase(search, pageable);
+        } else if (status != null) {
+            tasks = taskRepository.findByStatus(status, pageable);
+        } else {
+            tasks = taskRepository.findAll(pageable);
+        }
+
+        return tasks.map(this::mapToDTO);
     }
 
     public TaskDTO update(Long id, TaskDTO taskDTO) {
@@ -124,14 +164,46 @@ public class TaskService {
 
         User user = currentUserService.getCurrentUser();
 
-        List<Task> ownedBoardsTasks = taskRepository.findTasksByBoard_Owner_Id(user.getId());
-        List<Task> participantBoardsTasks = taskRepository.findTasksByBoard_Participants_Id(user.getId());
+        log.info("Fetching all tasks for user: {}", user.getEmail());
 
-        return Stream.concat(ownedBoardsTasks.stream(), participantBoardsTasks.stream())
-                .distinct()
+        return taskRepository.findByAssignedUser(user)
+                .stream()
                 .map(this::mapToDTO)
                 .toList();
+
+
     }
 
+    public TaskDTO assignTask(Long taskId, Long userId) {
 
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ObjectNotFoundException("Task", taskId));
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        boardAccessService.checkAccess(task.getBoard(), currentUser);
+
+        User asignee = userRepository.findById(userId)
+                .orElseThrow(() -> new ObjectNotFoundException("User", userId));
+
+        boolean isOwner = task.getBoard().getOwner().getId().equals(asignee.getId());
+
+        boolean isParticipant = task.getBoard().getParticipants()
+                .stream()
+                .anyMatch(participant -> participant.getId().equals(asignee.getId()));
+
+        if (!isOwner && !isParticipant) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "User is not a participant of this board"
+            );
+        }
+
+        task.setAssignedUser(asignee);
+
+
+        log.info("Task {} assigned to user {}", taskId, userId);
+
+        return mapToDTO(taskRepository.save(task));
+    }
 }
