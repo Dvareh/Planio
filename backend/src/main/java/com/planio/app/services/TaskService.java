@@ -4,6 +4,8 @@ package com.planio.app.services;
 import com.planio.app.dto.TaskDTO;
 import com.planio.app.entity.Board;
 import com.planio.app.entity.Task;
+import com.planio.app.entity.User;
+import com.planio.app.exceptions.ObjectNotFoundException;
 import com.planio.app.repositories.BoardRepository;
 import com.planio.app.repositories.TaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +22,8 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final BoardRepository boardRepository;
+    private final CurrentUserService currentUserService;
+    private final BoardAccessService boardAccessService;
 
     private TaskDTO mapToDTO(Task task) {
         TaskDTO dto = new TaskDTO();
@@ -33,7 +38,13 @@ public class TaskService {
 
     public TaskDTO create(TaskDTO taskDTO) {
         log.info("Creating task: {}", taskDTO.getTitle());
-        Board board = boardRepository.findById(taskDTO.getBoardId()).orElseThrow();
+
+        User user = currentUserService.getCurrentUser();
+
+        Board board = boardRepository.findById(taskDTO.getBoardId())
+                .orElseThrow(() -> new ObjectNotFoundException("Board", taskDTO.getBoardId()));
+
+        boardAccessService.checkAccess(board, user);
 
         Task task = Task.builder()
                 .title(taskDTO.getTitle())
@@ -43,17 +54,22 @@ public class TaskService {
                 .board(board)
                 .build();
 
-        Task saved = taskRepository.save(task);
 
-        log.info("Task created with id: {}", saved.getId());
+        log.info("Task created with id: {}", task.getId());
 
-        return mapToDTO(saved);
+        return mapToDTO(taskRepository.save(task));
     }
 
     public TaskDTO getById(Long id) {
         log.info("Fetching task by id: {}", id);
 
-        Task task = taskRepository.findById(id).orElseThrow();
+        User user = currentUserService.getCurrentUser();
+
+
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Task", id));
+
+        boardAccessService.checkAccess(task.getBoard(), user);
 
         return mapToDTO(task);
     }
@@ -61,8 +77,11 @@ public class TaskService {
     public List<TaskDTO> getAll() {
         log.info("Fetching all tasks");
 
+        User user = currentUserService.getCurrentUser();
+
         return taskRepository.findAll()
                 .stream()
+                .filter(task -> boardAccessService.hasAccess(task.getBoard(), user))
                 .map(this::mapToDTO)
                 .toList();
     }
@@ -70,23 +89,49 @@ public class TaskService {
     public TaskDTO update(Long id, TaskDTO taskDTO) {
         log.info("Updating task id: {}", id);
 
-        Task task = taskRepository.findById(id).orElseThrow();
+        User user = currentUserService.getCurrentUser();
+
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Task", id));
+
+        boardAccessService.checkAccess(task.getBoard(), user);
 
         task.setTitle(taskDTO.getTitle());
         task.setDescription(taskDTO.getDescription());
         task.setStatus(taskDTO.getStatus());
         task.setDueDate(taskDTO.getDueDate());
 
-        Task updated = taskRepository.save(task);
 
-        log.info("Task updated id: {}", updated.getId());
+        log.info("Task updated id: {}", task.getId());
 
-        return mapToDTO(updated);
+        return mapToDTO(taskRepository.save(task));
     }
 
     public void delete(Long id) {
         log.warn("Deleting task id: {}", id);
 
+        User user = currentUserService.getCurrentUser();
+
+        Task task = taskRepository.findById(id)
+                        .orElseThrow(() -> new ObjectNotFoundException("Task", id));
+
+        boardAccessService.checkAccess(task.getBoard(), user);
+
         taskRepository.deleteById(id);
     }
+
+    public List<TaskDTO> getMyTasks() {
+
+        User user = currentUserService.getCurrentUser();
+
+        List<Task> ownedBoardsTasks = taskRepository.findTasksByBoard_Owner_Id(user.getId());
+        List<Task> participantBoardsTasks = taskRepository.findTasksByBoard_Participants_Id(user.getId());
+
+        return Stream.concat(ownedBoardsTasks.stream(), participantBoardsTasks.stream())
+                .distinct()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
+
 }
