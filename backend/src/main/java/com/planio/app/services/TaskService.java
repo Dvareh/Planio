@@ -18,9 +18,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Service
@@ -33,6 +35,11 @@ public class TaskService {
     private final UserRepository userRepository;
     private final CurrentUserService currentUserService;
     private final BoardAccessService boardAccessService;
+    private static final Set<String> ALLOWED_SORTS = Set.of(
+            "dueDate",
+            "title",
+            "status"
+    );
 
     private TaskDTO mapToDTO(Task task) {
         TaskDTO dto = new TaskDTO();
@@ -48,6 +55,7 @@ public class TaskService {
         return dto;
     }
 
+    @Transactional
     public TaskDTO create(TaskDTO taskDTO) {
         log.info("Creating task: {}", taskDTO.getTitle());
 
@@ -94,15 +102,20 @@ public class TaskService {
         return mapToDTO(task);
     }
 
-    public Page<TaskDTO> getTasks(TaskStatus status,
-                                  String search,
-                                  int page,
-                                  int size,
-                                  String sortBy,
-                                  String direction) {
+    public Page<TaskDTO> getTasks(
+            TaskStatus status,
+            String search,
+            int page,
+            int size,
+            String sortBy,
+            String direction) {
 
-        log.info("Fetching tasks: status={}, search={}, page={}, size={}, sortBy={}, direction={}",
-                status, search, page, size, sortBy, direction);
+        User user = currentUserService.getCurrentUser();
+
+
+        if (!ALLOWED_SORTS.contains(sortBy)) {
+            sortBy = "dueDate";
+        }
 
         Sort sort = Sort.by(
                 direction.equalsIgnoreCase("desc")
@@ -113,19 +126,20 @@ public class TaskService {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Task> tasks;
+        log.info(
+                "Fetching tasks: status={}, search={}, page={}, size={}",
+                status,
+                search,
+                page,
+                size
+        );
 
-        if (search != null && !search.isEmpty()) {
-            tasks = taskRepository.findByTitleContainingIgnoreCase(search, pageable);
-        } else if (status != null) {
-            tasks = taskRepository.findByStatus(status, pageable);
-        } else {
-            tasks = taskRepository.findAll(pageable);
-        }
-
-        return tasks.map(this::mapToDTO);
+        return taskRepository.searchTasks(user, search, status, pageable)
+                .map(this::mapToDTO);
     }
 
+
+    @Transactional
     public TaskDTO update(Long id, TaskDTO taskDTO) {
         log.info("Updating task id: {}", id);
 
@@ -147,6 +161,7 @@ public class TaskService {
         return mapToDTO(taskRepository.save(task));
     }
 
+    @Transactional
     public void delete(Long id) {
         log.warn("Deleting task id: {}", id);
 
@@ -174,6 +189,7 @@ public class TaskService {
 
     }
 
+    @Transactional
     public TaskDTO assignTask(Long taskId, Long userId) {
 
         Task task = taskRepository.findById(taskId)
