@@ -9,6 +9,7 @@ import com.planio.app.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,24 +33,21 @@ public class BoardService {
         return boardDTO;
     }
 
+    @Transactional
     public BoardDTO createBoard(BoardDTO boardDTO) {
-        log.info("Creating board: {}", boardDTO.getName());
-        User owner = userRepository.findById(boardDTO.getOwnerId()).
-                orElseThrow(() -> new ObjectNotFoundException("User", boardDTO.getOwnerId()));
+
+        User user = currentUserService.getCurrentUser();
 
         Board board = Board.builder()
                 .name(boardDTO.getName())
-                .owner(owner)
+                .owner(user)
                 .participants(new ArrayList<>())
                 .build();
 
-        Board saved = boardRepository.save(board);
-
-        log.info("Board created with id: {}", saved.getId());
-
-        return mapToDTO(saved);
+        return mapToDTO(boardRepository.save(board));
     }
 
+    @Transactional
     public void addParticipant(Long boardId, String email) {
         log.info("Adding {} to board {}", email, boardId);
 
@@ -92,6 +90,7 @@ public class BoardService {
         return mapToDTO(board);
     }
 
+    @Transactional
     public BoardDTO update(Long id, BoardDTO boardDTO) {
         log.info("Updating board id: {}", id);
         User user = currentUserService.getCurrentUser();
@@ -108,6 +107,7 @@ public class BoardService {
         return mapToDTO(boardRepository.save(board));
     }
 
+    @Transactional
     public void delete(Long id) {
         log.warn("Deleting board id: {}", id);
 
