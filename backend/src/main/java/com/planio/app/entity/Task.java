@@ -35,4 +35,10 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "assigned_user_id")
     private User assignedUser;
+
+    @Column(nullable = false)
+    private Boolean reminder3DaysSent = false;
+
+    @Column(nullable = false)
+    private Boolean reminder1DaySent = false;
 }
