@@ -3,17 +3,17 @@ Planio is a full-stack task management application designed to help users organi
 The system allows users to create tasks, set deadlines, add comments, and receive notifications about upcoming deadlines.
 
 # Features:
-  ## Authentication:
+  ### Authentication:
       User registration
       JWT authentication
       Secure login
       Password change
-  ## Boards:
+  ### Boards:
       Create, update and delete boards
       Board ownership
       Invite participants by email
       Access control for board members
-  ## Tasks:
+  ### Tasks:
       Create, update and delete tasks
       Assign tasks to board participants
       Task status management
@@ -22,7 +22,7 @@ The system allows users to create tasks, set deadlines, add comments, and receiv
       Filtering by status
       Pagination
       Sorting
-  ## Comments:
+  ### Comments:
       Add comments to tasks
       View task comments
       Delete comments
@@ -32,7 +32,7 @@ The system allows users to create tasks, set deadlines, add comments, and receiv
       3 days before deadline
       1 day before deadline
       Notification history stored in the database
-  ## User Management:
+  ### User Management:
       View current profile
       Update own profile
       Change password
@@ -43,7 +43,7 @@ The system allows users to create tasks, set deadlines, add comments, and receiv
       Delete users
       Protected admin endpoints
 # Technology Stack:
-  ## Backend:
+  ### Backend:
     Java 21
     Spring Boot
     Spring Security
@@ -55,10 +55,10 @@ The system allows users to create tasks, set deadlines, add comments, and receiv
     Lombok
     Maven
     
-  ## Documentation:
+  ### Documentation:
     Swagger / OpenAPI
     
-  ## Frontend:
+  ### Frontend:
 
     Angular
     TypeScript
@@ -69,9 +69,9 @@ The system allows users to create tasks, set deadlines, add comments, and receiv
     RxJS
 # Security:
 
-  Planio implements JWT-based authentication and role-based authorization.
+  ### Planio implements JWT-based authentication and role-based authorization.
 
-  ## Roles:
+  ### Roles:
     USER
     ADMIN
     Authorization
@@ -82,7 +82,7 @@ The system allows users to create tasks, set deadlines, add comments, and receiv
     Manage their own boards
     Access boards they participate in
 
-  ## Administrators can additionally:
+  ### Administrators can additionally:
     
     View all users
     Delete users
@@ -91,14 +91,14 @@ The system allows users to create tasks, set deadlines, add comments, and receiv
 
 # Email Notifications:
 
-  The application automatically checks upcoming task deadlines every day.
+  ### The application automatically checks upcoming task deadlines every day.
 
-## Users receive reminder emails:
+### Users receive reminder emails:
 
     3 days before deadline
     1 day before deadline
 
-  Sent notifications are saved in the database to prevent duplicates.
+ ###  Sent notifications are saved in the database to prevent duplicates.
 
 # Author:
-  Artiom Prilepschi
+  ### Artiom Prilepschi
