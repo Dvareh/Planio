@@ -99,3 +99,6 @@ The system allows users to create tasks, set deadlines, add comments, and receiv
     1 day before deadline
 
   Sent notifications are saved in the database to prevent duplicates.
+
+# Author:
+  Artiom Prilepschi
