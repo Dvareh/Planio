@@ -54,9 +54,19 @@ The system allows users to create tasks, set deadlines, add comments, and receiv
     JWT
     Lombok
     Maven
+    
   ## Documentation:
     Swagger / OpenAPI
+    
+  ## Frontend:
 
+    Angular
+    TypeScript
+    HTML5
+    CSS3
+    Angular Router
+    Angular HttpClient
+    RxJS
 # Security:
 
   Planio implements JWT-based authentication and role-based authorization.
