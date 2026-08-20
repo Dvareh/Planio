@@ -1,0 +1,9 @@
+.sidebar {
+  width: 220px;
+  padding: 24px;
+  border-right: 1px solid gray;
+}
+
+.sidebar a {
+  text-decoration: none;
+}
