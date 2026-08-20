@@ -8,7 +8,7 @@ public class CommentDTO {
 
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Comment text cannot be empty")
     private String text;
 
     private Long taskId;

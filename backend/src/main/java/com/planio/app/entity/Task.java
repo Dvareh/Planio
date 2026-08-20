@@ -25,9 +25,20 @@ public class Task {
 
     private LocalDate dueDate;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private TaskStatus status;
 
     @ManyToOne
     @JoinColumn(name = "board_id")
     private Board board;
+
+    @ManyToOne
+    @JoinColumn(name = "assigned_user_id")
+    private User assignedUser;
+
+    @Column(nullable = false)
+    private Boolean reminder3DaysSent = false;
+
+    @Column(nullable = false)
+    private Boolean reminder1DaySent = false;
 }

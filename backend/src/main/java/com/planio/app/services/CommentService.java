@@ -11,6 +11,7 @@ import com.planio.app.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -66,6 +67,7 @@ public class CommentService {
                 .toList();
     }
 
+    @Transactional
     public void delete(Long id) {
         log.warn("Deleting comment id: {}", id);
 
