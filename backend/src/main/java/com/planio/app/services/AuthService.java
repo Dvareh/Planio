@@ -3,7 +3,9 @@ package com.planio.app.services;
 import com.planio.app.dto.AuthDTO;
 import com.planio.app.dto.LoginDTO;
 import com.planio.app.dto.RegisterDTO;
+import com.planio.app.entity.Roles;
 import com.planio.app.entity.User;
+import com.planio.app.exceptions.ObjectNotFoundException;
 import com.planio.app.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,11 +28,12 @@ public class AuthService {
                 .username(registerDTO.getUsername())
                 .email(registerDTO.getEmail())
                 .password(passwordEncoder.encode(registerDTO.getPassword()))
+                .role(Roles.USER)
                 .build();
 
         userRepository.save(user);
 
-        String token = jwtService.generateToken(user.getEmail());
+        String token = jwtService.generateToken(user);
 
         return new AuthDTO(token);
     }
@@ -44,7 +47,10 @@ public class AuthService {
                 )
         );
 
-        String token = jwtService.generateToken(loginDTO.getEmail());
+        User user = userRepository.findByEmail(loginDTO.getEmail())
+                .orElseThrow(() -> new ObjectNotFoundException("User", loginDTO.getEmail()));
+
+        String token = jwtService.generateToken(user);
 
         return new AuthDTO(token);
     }
