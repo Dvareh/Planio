@@ -1,2 +1,69 @@
-<h2>Dashboard</h2>
-<p>Welcome to Planio!</p>
+<div class="dashboard">
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
+
+    <button type="button" routerLink="/create-board">
+      Create Board
+    </button>
+  </div>
+
+  <section class="boards-section">
+    <h2>My Boards</h2>
+
+    @if (boards.length === 0) {
+      <p>
+        No boards yet.
+      </p>
+    } @else {
+      <div class="boards">
+        @for (board of boards; track board.id) {
+          <div class="board">
+            <h3>{{ board.name }}</h3>
+
+            <button type="button" [routerLink]="['/boards', board.id]">
+              Open
+            </button>
+
+            <button type="button" [routerLink]="['/edit-board', board.id]">
+              Edit
+            </button>
+
+            <button type="button" (click)="confirmDeleteBoard(board)">
+              Delete
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  @if (deleteBoardId !== null) {
+    <div class="delete-modal">
+      <div class="delete-modal-content">
+
+        <h2>Delete Board</h2>
+
+        <p>
+          Are you sure you want to delete
+          <strong>{{ deleteBoardName }}</strong>?
+        </p>
+
+        <p>
+          Type <strong>{{ deleteBoardName }}</strong> to confirm.
+        </p>
+
+        <input type="text" [(ngModel)]="deleteConfirmation" placeholder="Board name">
+
+        <div class="delete-modal-actions">
+          <button type="button" (click)="deleteBoardId = null">
+            Cancel
+          </button>
+
+          <button type="button" (click)="deleteBoard()" [disabled]="deleteConfirmation !== deleteBoardName">
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

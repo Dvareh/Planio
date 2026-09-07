@@ -1,0 +1,22 @@
+<div class="edit-board">
+  <h2>Edit Board</h2>
+
+  <form (ngSubmit)="updateBoard()">
+    <div>
+      <label for="boardName">Board name: </label>
+
+      <input
+        id="boardName"
+        type="text"
+        [(ngModel)]="boardName"
+        name="boardName"
+        placeholder="Enter board name"
+        required
+      >
+    </div>
+
+    <button type="submit" [disabled]="!boardName.trim()">
+      Save
+    </button>
+  </form>
+</div>
