@@ -1,0 +1,21 @@
+<div class="create-board">
+  <h2>Create Board</h2>
+
+  <form (ngSubmit)="createBoard()">
+    <div>
+      <label for="boardName">Board name</label>
+      <input
+        id="boardName"
+        type="text"
+        [(ngModel)]="boardName"
+        name="boardName"
+        placeholder="Enter board name"
+        required
+      >
+    </div>
+
+    <button type="submit" [disabled]="!boardName.trim()">
+      Create
+    </button>
+  </form>
+</div>
