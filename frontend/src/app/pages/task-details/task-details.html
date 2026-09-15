@@ -1,0 +1,67 @@
+<div class="task-page">
+
+  <button type="button" routerLink="/dashboard">
+    Back to Dashboard
+  </button>
+
+  @if (isLoading) {
+
+    <p>Loading task...</p>
+
+  } @else if (errorMessage) {
+
+    <p>{{ errorMessage }}</p>
+
+  } @else if (task) {
+
+    <h1>{{ task.title }}</h1>
+
+    <p>
+      <strong>Description:</strong>
+      {{ task.description }}
+    </p>
+
+    <p>
+      <strong>Due date:</strong>
+      {{ task.dueDate }}
+    </p>
+
+    <p>
+      <strong>Status:</strong>
+      {{ task.status }}
+    </p>
+
+    <p>
+      <strong>Assigned user ID:</strong>
+      {{ task.assignedUserId ?? 'Not assigned' }}
+    </p>
+
+  }
+
+  <h2>Assignment</h2>
+
+  <label>
+    Assign to
+
+    <select [(ngModel)]="selectedUserId">
+      <option [ngValue]="null">
+        Select user
+      </option>
+
+      @for (user of participants; track user.id) {
+        <option [ngValue]="user.id">
+          {{ user.username }} ({{ user.email }})
+        </option>
+      }
+    </select>
+  </label>
+
+  @if (assignErrorMessage) {
+    <p>{{ assignErrorMessage }}</p>
+  }
+
+  <button type="button" (click)="assignTask()">
+    Assign
+  </button>
+
+</div>

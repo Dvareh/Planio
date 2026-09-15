@@ -1,0 +1,46 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  width: 400px;
+  padding: 24px;
+  background: white;
+  border-radius: 8px;
+}
+
+.modal h2 {
+  margin-top: 0;
+}
+
+.modal label {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.modal input,
+.modal textarea,
+.modal select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.modal textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
