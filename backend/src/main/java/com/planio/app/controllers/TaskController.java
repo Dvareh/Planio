@@ -36,6 +36,7 @@ public class TaskController {
     @Operation(summary = "Get all tasks")
     @GetMapping
     public Page<TaskDTO> getTasks(
+            @RequestParam(required = false) Long boardId,
             @RequestParam(required = false) TaskStatus status,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
@@ -43,7 +44,7 @@ public class TaskController {
             @RequestParam(defaultValue = "dueDate") String sortBy,
             @RequestParam(defaultValue = "asc") String direction
     ) {
-        return taskService.getTasks(status, search, page, size, sortBy, direction);
+        return taskService.getTasks(boardId, status, search, page, size, sortBy, direction);
     }
 
     @Operation(summary = "Update task")
