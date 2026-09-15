@@ -5,6 +5,7 @@ import { Board } from '../models/board';
 import { Observable } from 'rxjs';
 import { CreateBoard } from '../models/create-board';
 import { UpdateBoard } from '../models/update-board';
+import { User } from '../models/user';
 
 @Injectable({
   providedIn: 'root'
@@ -34,5 +35,11 @@ export class BoardService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  getParticipants(boardId: number): Observable<User[]> {
+    return this.http.get<User[]>(
+      `${this.apiUrl}/${boardId}/participants`
+    );
   }
 }

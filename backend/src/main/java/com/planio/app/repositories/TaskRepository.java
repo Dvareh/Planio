@@ -29,19 +29,22 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             "assignedUser"
     })
     @Query("""
-        SELECT t FROM Task t
-        WHERE
-        (
-            t.board.owner = :user
-            OR :user MEMBER OF t.board.participants
-        )
-        AND
-        (:search IS NULL OR LOWER(t.title) LIKE LOWER(CONCAT('%', :search, '%')))
-        AND
-        (:status IS NULL OR t.status = :status)
+    SELECT t FROM Task t
+    WHERE
+    (
+        t.board.owner = :user
+        OR :user MEMBER OF t.board.participants
+    )
+    AND
+    (:boardId IS NULL OR t.board.id = :boardId)
+    AND
+    (:search = '' OR LOWER(t.title) LIKE LOWER(CONCAT('%', :search, '%')))
+    AND
+    (:status IS NULL OR t.status = :status)
     """)
     Page<Task> searchTasks(
             @Param("user") User user,
+            @Param("boardId") Long boardId,
             @Param("search") String search,
             @Param("status") TaskStatus status,
             Pageable pageable
