@@ -1,6 +1,7 @@
 package com.planio.app.services;
 
 import com.planio.app.dto.BoardDTO;
+import com.planio.app.dto.UserDTO;
 import com.planio.app.entity.Board;
 import com.planio.app.entity.User;
 import com.planio.app.exceptions.ObjectNotFoundException;
@@ -31,6 +32,17 @@ public class BoardService {
         boardDTO.setName(board.getName());
         boardDTO.setOwnerId(board.getOwner().getId());
         return boardDTO;
+    }
+
+    private UserDTO mapUserToDTO(User user) {
+
+        UserDTO userDTO = new UserDTO();
+
+        userDTO.setId(user.getId());
+        userDTO.setUsername(user.getUsername());
+        userDTO.setEmail(user.getEmail());
+
+        return userDTO;
     }
 
     @Transactional
@@ -131,6 +143,21 @@ public class BoardService {
         return Stream.concat(owned.stream(), participant.stream())
                 .distinct()
                 .map(this::mapToDTO)
+                .toList();
+    }
+
+    public List<UserDTO> getParticipants(Long boardId) {
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ObjectNotFoundException("Board", boardId));
+
+        boardAccessService.checkAccess(board, currentUser);
+
+        return board.getParticipants()
+                .stream()
+                .map(this::mapUserToDTO)
                 .toList();
     }
 }

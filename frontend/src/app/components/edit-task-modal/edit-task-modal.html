@@ -1,0 +1,58 @@
+<div class="modal-backdrop">
+
+  <div class="modal">
+
+    <h2>Edit Task</h2>
+
+    @if (isLoading) {
+      <p>Loading task...</p>
+    } @else {
+
+      <label>
+        Title
+        <input type="text" [(ngModel)]="task.title">
+      </label>
+
+      <label>
+        Description
+
+        <textarea [(ngModel)]="task.description"></textarea>
+      </label>
+
+      <label>
+        Due date
+        <input type="date" [(ngModel)]="task.dueDate">
+      </label>
+
+      <label>
+        Status
+
+        <select [(ngModel)]="task.status">
+          <option value="TODO">TODO</option>
+          <option value="IN_PROGRESS">IN PROGRESS</option>
+          <option value="DONE">DONE</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+      </label>
+
+      @if (errorMessage) {
+        <p>{{ errorMessage }}</p>
+      }
+
+      <div class="modal-actions">
+
+        <button type="button" (click)="closeModal()">
+          Cancel
+        </button>
+
+        <button type="button" (click)="updateTask()">
+          Save
+        </button>
+
+      </div>
+
+    }
+
+  </div>
+
+</div>

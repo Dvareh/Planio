@@ -103,6 +103,7 @@ public class TaskService {
     }
 
     public Page<TaskDTO> getTasks(
+            Long boardId,
             TaskStatus status,
             String search,
             int page,
@@ -126,6 +127,10 @@ public class TaskService {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
+        if (search == null) {
+            search = "";
+        }
+
         log.info(
                 "Fetching tasks: status={}, search={}, page={}, size={}",
                 status,
@@ -134,7 +139,7 @@ public class TaskService {
                 size
         );
 
-        return taskRepository.searchTasks(user, search, status, pageable)
+        return taskRepository.searchTasks(user, boardId, search, status, pageable)
                 .map(this::mapToDTO);
     }
 

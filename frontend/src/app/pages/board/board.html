@@ -8,6 +8,63 @@
 
   <h2>Tasks</h2>
 
-  <p>No tasks yet.</p>
+  <button type="button" (click)="showCreateForm = true">
+    Add Task
+  </button>
+
+  @if (tasks.length === 0) {
+    <p>No tasks yet.</p>
+  } @else {
+    <div class="task-list">
+
+      @for (task of tasks; track task.id) {
+        <div class="task">
+          <h3>
+            <a [routerLink]="['/tasks', task.id]">
+              {{ task.title }}
+            </a>
+          </h3>
+          <p>{{ task.description }}</p>
+          <p>Due date: {{ task.dueDate }}</p>
+          <p>Status: {{ task.status }}</p>
+
+          <button type="button" (click)="openEditTask(task.id)">
+            Edit
+          </button>
+
+          <button type="button" (click)="openDeleteTask(task.id, task.title)">
+            Delete
+          </button>
+
+        </div>
+      }
+
+    </div>
+  }
 
 </div>
+
+@if (showCreateForm) {
+  <app-create-task-modal
+    [boardId]="boardId"
+    (close)="showCreateForm = false"
+    (taskCreated)="onTaskCreated()"
+  />
+}
+
+@if (showEditForm && selectedTaskId !== null) {
+  <app-edit-task-modal
+    [taskId]="selectedTaskId"
+    (close)="showEditForm = false"
+    (taskUpdated)="onTaskUpdated()"
+  />
+}
+
+@if (showDeleteForm && selectedTaskId !== null) {
+  <app-delete-task-modal
+    [taskId]="selectedTaskId"
+    [taskTitle]="selectedTaskTitle"
+    (close)="showDeleteForm = false"
+    (taskDeleted)="onTaskDeleted()"
+  />
+}

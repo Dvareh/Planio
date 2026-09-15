@@ -8,6 +8,7 @@ import {guestGuard} from './guards/guest-guard';
 import { CreateBoardPage } from './pages/create-board/create-board';
 import { EditBoard } from './pages/edit-board/edit-board';
 import { Board } from './pages/board/board';
+import { TaskDetails } from './pages/task-details/task-details';
 
 export const routes: Routes = [
   {
@@ -49,5 +50,9 @@ export const routes: Routes = [
         canActivate: [authGuard]
       }
     ]
+  },
+  {
+    path: 'tasks/:id',
+    component: TaskDetails
   }
 ];
