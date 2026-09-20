@@ -35,7 +35,6 @@
       <strong>Assigned user ID:</strong>
       {{ task.assignedUserId ?? 'Not assigned' }}
     </p>
-
   }
 
   <h2>Assignment</h2>
@@ -50,7 +49,11 @@
 
       @for (user of participants; track user.id) {
         <option [ngValue]="user.id">
-          {{ user.username }} ({{ user.email }})
+          {{ user.username }}
+          @if (isCurrentUser(user.id)) {
+            (me)
+          }
+          ({{ user.email }})
         </option>
       }
     </select>
@@ -62,6 +65,63 @@
 
   <button type="button" (click)="assignTask()">
     Assign
+  </button>
+
+  <h2>Comments</h2>
+
+  @if (comments.length === 0) {
+
+    <p>No comments yet.</p>
+
+  } @else {
+    @for (comment of comments; track comment.id) {
+      <div class="comment">
+        <p>
+          <strong>User {{ comment.userId }}</strong>
+        </p>
+
+        @if (editingCommentId === comment.id && isCurrentUser(comment.userId)) {
+          <textarea [(ngModel)]="editingCommentText" rows="3"></textarea>
+
+          <button type="button" (click)="saveComment(comment.id)">
+            Save
+          </button>
+
+          <button type="button" (click)="editingCommentId = null">
+            Cancel
+          </button>
+
+        } @else {
+          <p>
+            {{ comment.text }}
+          </p>
+
+          @if (isCurrentUser(comment.userId)) {
+            <button type="button" (click)="startEditComment(comment)">
+              Edit
+            </button>
+
+            <button type="button" (click)="deleteComment(comment.id)">
+              Delete
+            </button>
+          }
+        }
+      </div>
+    }
+  }
+
+  <h3>Add comment</h3>
+
+  <textarea [(ngModel)]="newCommentText" placeholder="Write a comment..." rows="4"></textarea>
+
+  @if (commentErrorMessage) {
+    <p>{{ commentErrorMessage }}</p>
+  }
+
+  <button
+    type="button"
+    (click)="addComment()">
+    Add comment
   </button>
 
 </div>
