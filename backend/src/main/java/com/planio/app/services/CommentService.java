@@ -4,6 +4,7 @@ import com.planio.app.dto.CommentDTO;
 import com.planio.app.entity.Comment;
 import com.planio.app.entity.Task;
 import com.planio.app.entity.User;
+import com.planio.app.exceptions.AccessDeniedException;
 import com.planio.app.exceptions.ObjectNotFoundException;
 import com.planio.app.repositories.CommentRepository;
 import com.planio.app.repositories.TaskRepository;
@@ -61,7 +62,7 @@ public class CommentService {
 
         boardAccessService.checkAccess(task.getBoard(), user);
 
-        return commentRepository.findByTaskId(taskId)
+        return commentRepository.findByTaskIdOrderByCreatedAtAsc(taskId)
                 .stream()
                 .map(this::mapToDTO)
                 .toList();
@@ -78,6 +79,10 @@ public class CommentService {
 
         boardAccessService.checkAccess(comment.getTask().getBoard(), user);
 
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You can only delete your own comments");
+        }
+
         commentRepository.delete(comment);
     }
 
@@ -88,5 +93,25 @@ public class CommentService {
         dto.setTaskId(comment.getTask().getId());
         dto.setUserId(comment.getUser().getId());
         return dto;
+    }
+
+    @Transactional
+    public CommentDTO update(Long id, CommentDTO commentDTO) {
+        log.info("Updating comment id: {}", id);
+
+        User user = currentUserService.getCurrentUser();
+
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Comment", id));
+
+        boardAccessService.checkAccess(comment.getTask().getBoard(), user);
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You can only edit your own comments");
+        }
+
+        comment.setText(commentDTO.getText());
+
+        return mapToDTO(commentRepository.save(comment));
     }
 }

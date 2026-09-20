@@ -147,16 +147,18 @@ public class BoardService {
     }
 
     public List<UserDTO> getParticipants(Long boardId) {
-
-        User currentUser = currentUserService.getCurrentUser();
+        User user = currentUserService.getCurrentUser();
 
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ObjectNotFoundException("Board", boardId));
 
-        boardAccessService.checkAccess(board, currentUser);
+        boardAccessService.checkAccess(board, user);
 
-        return board.getParticipants()
-                .stream()
+        List<User> users = new ArrayList<>();
+        users.add(board.getOwner());
+        users.addAll(board.getParticipants());
+
+        return users.stream()
                 .map(this::mapUserToDTO)
                 .toList();
     }
