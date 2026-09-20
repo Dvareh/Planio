@@ -36,4 +36,12 @@ public class CommentController {
     public void delete(@PathVariable Long id) {
         commentService.delete(id);
     }
+
+    @Operation(summary = "Update comment")
+    @PutMapping("/{id}")
+    public CommentDTO update(
+            @PathVariable Long id,
+            @RequestBody @Valid CommentDTO commentDTO) {
+        return commentService.update(id, commentDTO);
+    }
 }
