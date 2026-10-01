@@ -10,6 +10,10 @@
 }
 
 .dashboard-header h1 {
+  margin: 0 0 8px;
+}
+
+.dashboard-header p {
   margin: 0;
 }
 
@@ -20,9 +24,117 @@
   cursor: pointer;
 }
 
+
+.statistics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.stat-card h3 {
+  margin: 0 0 12px;
+}
+
+.stat-card p {
+  font-size: 28px;
+  margin: 0;
+}
+
+
+.tasks-section,
+.deadlines-section,
+.boards-section {
+  margin-bottom: 32px;
+}
+
+.tasks-section h2,
+.deadlines-section h2,
 .boards-section h2 {
   margin-bottom: 16px;
 }
+
+
+
+.tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.task-info {
+  flex: 1;
+}
+
+.task-info h3 {
+  margin: 0 0 6px;
+}
+
+.task-info p {
+  margin: 0;
+}
+
+.task-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 150px;
+}
+
+.task button,
+.deadline button,
+.board button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+
+
+.deadlines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.deadline {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.deadline div {
+  flex: 1;
+}
+
+.deadline p {
+  margin: 4px 0 0;
+}
+
+.overdue-section {
+  margin-bottom: 32px;
+}
+
+
 
 .boards {
   display: grid;
@@ -34,13 +146,17 @@
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  cursor: pointer;
-
 }
 
 .board h3 {
-  margin: 0;
+  margin: 0 0 16px;
 }
+
+.board button {
+  margin-right: 8px;
+}
+
+
 
 .delete-modal {
   position: fixed;

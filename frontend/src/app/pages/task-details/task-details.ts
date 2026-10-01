@@ -11,10 +11,11 @@ import { CommentService } from '../../services/comment';
 import { CreateComment } from '../../models/create-comment';
 import { UpdateComment } from '../../models/update-comment';
 import { Auth } from '../../services/auth';
+import { TaskStatusLabelPipe } from '../../pipes/task-status-label-pipe';
 
 @Component({
   selector: 'app-task-details',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, TaskStatusLabelPipe],
   templateUrl: './task-details.html',
   styleUrl: './task-details.css',
 })
@@ -44,8 +45,8 @@ export class TaskDetails {
     private taskService: TaskService,
     private changeDetectorRef: ChangeDetectorRef,
     private boardService: BoardService,
-    private commentService : CommentService,
-    private auth: Auth
+    private commentService: CommentService,
+    private auth: Auth,
   ) {}
 
   ngOnInit(): void {
@@ -72,7 +73,7 @@ export class TaskDetails {
         this.isLoading = false;
 
         this.changeDetectorRef.detectChanges();
-      }
+      },
     });
   }
 
@@ -87,7 +88,7 @@ export class TaskDetails {
       },
       error: (error) => {
         console.error('Failed to load board', error);
-      }
+      },
     });
   }
 
@@ -111,7 +112,7 @@ export class TaskDetails {
         this.assignErrorMessage = 'Failed to assign task.';
 
         this.changeDetectorRef.detectChanges();
-      }
+      },
     });
   }
 
@@ -124,7 +125,7 @@ export class TaskDetails {
       },
       error: (error) => {
         console.error('Failed to load participants', error);
-      }
+      },
     });
   }
 
@@ -137,7 +138,7 @@ export class TaskDetails {
       },
       error: (error) => {
         console.error('Failed to load comments', error);
-      }
+      },
     });
   }
 
@@ -151,7 +152,7 @@ export class TaskDetails {
 
     const comment: CreateComment = {
       text: this.newCommentText.trim(),
-      taskId: this.taskId
+      taskId: this.taskId,
     };
 
     this.commentService.create(comment).subscribe({
@@ -165,7 +166,7 @@ export class TaskDetails {
 
         this.commentErrorMessage = 'Failed to add comment.';
         this.changeDetectorRef.detectChanges();
-      }
+      },
     });
   }
 
@@ -179,7 +180,7 @@ export class TaskDetails {
 
         this.commentErrorMessage = 'Failed to delete comment.';
         this.changeDetectorRef.detectChanges();
-      }
+      },
     });
   }
 
@@ -197,7 +198,7 @@ export class TaskDetails {
     }
 
     const comment: UpdateComment = {
-      text: this.editingCommentText.trim()
+      text: this.editingCommentText.trim(),
     };
 
     this.commentService.update(commentId, comment).subscribe({
@@ -212,7 +213,7 @@ export class TaskDetails {
 
         this.commentErrorMessage = 'Failed to update comment.';
         this.changeDetectorRef.detectChanges();
-      }
+      },
     });
   }
 
