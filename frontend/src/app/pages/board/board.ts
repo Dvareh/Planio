@@ -8,11 +8,20 @@ import { TaskService } from '../../services/task';
 import {CreateTaskModal} from '../../components/create-task-modal/create-task-modal';
 import {EditTaskModal} from '../../components/edit-task-modal/edit-task-modal';
 import {DeleteTaskModal} from '../../components/delete-task-modal/delete-task-modal';
+import { TaskStatusLabelPipe } from '../../pipes/task-status-label-pipe';
+import { TaskDeadlinePipe } from '../../pipes/task-deadline-pipe';
 
 
 @Component({
   selector: 'app-board',
-  imports: [RouterLink, CreateTaskModal, EditTaskModal, DeleteTaskModal],
+  imports: [
+    RouterLink,
+    CreateTaskModal,
+    EditTaskModal,
+    DeleteTaskModal,
+    TaskStatusLabelPipe,
+    TaskDeadlinePipe,
+  ],
   templateUrl: './board.html',
   styleUrl: './board.css',
 })
@@ -28,8 +37,6 @@ export class Board implements OnInit {
 
   showDeleteForm = false;
   selectedTaskTitle = '';
-
-
 
   constructor(
     private route: ActivatedRoute,
@@ -58,14 +65,13 @@ export class Board implements OnInit {
   loadTasks(): void {
     this.taskService.getTasks(this.boardId).subscribe({
       next: (page) => {
-
         this.tasks = page.content;
 
         this.changeDetectorRef.detectChanges();
-        },
+      },
       error: (error) => {
         console.error('Failed to load tasks', error);
-      }
+      },
     });
   }
 
