@@ -1,23 +1,170 @@
 <div class="dashboard">
+
   <div class="dashboard-header">
-    <h1>Dashboard</h1>
+    <div>
+      <h1>Dashboard</h1>
+      <p>Overview of your tasks and boards</p>
+    </div>
 
     <button type="button" routerLink="/create-board">
       Create Board
     </button>
   </div>
 
+  <section class="statistics">
+
+    <div class="stat-card">
+      <h3>My Tasks</h3>
+      <p>{{ tasks.length }}</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>To Do</h3>
+      <p>{{ todoCount }}</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>In Progress</h3>
+      <p>{{ inProgressCount }}</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>Completed</h3>
+      <p>{{ doneCount }}</p>
+    </div>
+
+  </section>
+
+  <section class="tasks-section">
+
+    <div class="section-header">
+      <h2>My Tasks</h2>
+    </div>
+
+    @if (tasks.length === 0) {
+
+      <p>No tasks assigned to you.</p>
+
+    } @else {
+
+      <div class="tasks">
+
+        @for (task of tasks; track task.id) {
+
+          <div class="task">
+
+            <div class="task-info">
+              <h3>{{ task.title }}</h3>
+              <p>{{ task.description }}</p>
+            </div>
+
+            <div class="task-details">
+
+              <span>
+                {{ task.status | taskStatusLabel }}
+                @if (task.dueDate | taskDeadline: task.status) {
+                    | {{ task.dueDate | taskDeadline: task.status }}
+                }
+              </span>
+
+              @if (task.dueDate) {
+                <span>
+                  Due: {{ task.dueDate | date:'mediumDate' }}
+                </span>
+              }
+
+            </div>
+
+            <button type="button" [routerLink]="['/tasks', task.id]">
+              Open
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+  </section>
+
+
+  <section class="deadlines-section">
+
+    <h2>Upcoming Deadlines</h2>
+
+    @if (upcomingTasks.length === 0) {
+      <p>No upcoming deadlines.</p>
+    } @else {
+      <div class="deadlines">
+
+        @for (task of upcomingTasks; track task.id) {
+
+          <div class="deadline">
+
+            <div>
+              <strong>{{ task.title }}</strong>
+              <p>{{ task.status | taskStatusLabel }}</p>
+            </div>
+
+            <span>
+              {{ task.dueDate | date:'mediumDate' }}
+            </span>
+
+            <button type="button" [routerLink]="['/tasks', task.id]">
+              Open
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="overdue-section">
+    <h2>Overdue Tasks</h2>
+
+    @if (overdueTasks.length === 0) {
+      <p>No overdue tasks.</p>
+    } @else {
+      <div class="deadlines">
+        @for (task of overdueTasks; track task.id) {
+          <div class="deadline">
+            <div>
+              <strong>{{ task.title }}</strong>
+
+              <p>
+                {{ task.status | taskStatusLabel }}
+                | {{ task.dueDate | taskDeadline: task.status }}
+              </p>
+
+            </div>
+
+            <span>
+            Due: {{ task.dueDate | date:'mediumDate' }}
+            </span>
+
+            <button type="button" [routerLink]="['/tasks', task.id]">
+              Open
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+  </section>
+
   <section class="boards-section">
+
     <h2>My Boards</h2>
 
     @if (boards.length === 0) {
-      <p>
-        No boards yet.
-      </p>
+
+      <p>No boards yet.</p>
+
     } @else {
+
       <div class="boards">
+
         @for (board of boards; track board.id) {
           <div class="board">
+
             <h3>{{ board.name }}</h3>
 
             <button type="button" [routerLink]="['/boards', board.id]">
@@ -31,6 +178,7 @@
             <button type="button" (click)="confirmDeleteBoard(board)">
               Delete
             </button>
+
           </div>
         }
       </div>
@@ -40,7 +188,6 @@
   @if (deleteBoardId !== null) {
     <div class="delete-modal">
       <div class="delete-modal-content">
-
         <h2>Delete Board</h2>
 
         <p>
@@ -55,6 +202,7 @@
         <input type="text" [(ngModel)]="deleteConfirmation" placeholder="Board name">
 
         <div class="delete-modal-actions">
+
           <button type="button" (click)="deleteBoardId = null">
             Cancel
           </button>
@@ -62,6 +210,7 @@
           <button type="button" (click)="deleteBoard()" [disabled]="deleteConfirmation !== deleteBoardName">
             Confirm
           </button>
+
         </div>
       </div>
     </div>
