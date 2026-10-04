@@ -9,6 +9,7 @@ import { CreateBoardPage } from './pages/create-board/create-board';
 import { EditBoard } from './pages/edit-board/edit-board';
 import { Board } from './pages/board/board';
 import { TaskDetails } from './pages/task-details/task-details';
+import { Notifications } from './pages/notifications/notifications';
 
 export const routes: Routes = [
   {
@@ -54,5 +55,9 @@ export const routes: Routes = [
   {
     path: 'tasks/:id',
     component: TaskDetails
-  }
+  },
+  {
+    path: 'notifications',
+    component: Notifications
+  },
 ];

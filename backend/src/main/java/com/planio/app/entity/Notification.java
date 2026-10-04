@@ -26,4 +26,6 @@ public class Notification {
     private String type;
 
     private LocalDateTime sentAt;
+
+    private boolean read;
 }
