@@ -1,9 +1,21 @@
 <header class="header">
   <h1>Planio</h1>
-  <button (click)="logout()">Logout</button>
+
   @if (currentUser) {
     <div>
       <span>{{ currentUser.name }}</span>
+
+      <button type="button" (click)="openNotifications()">
+        Notifications
+
+        @if (unreadNotifications > 0) {
+          <span>
+             : {{ unreadNotifications }}
+          </span>
+        }
+      </button>
     </div>
   }
+
+  <button type="button" (click)="logout()">Logout</button>
 </header>
