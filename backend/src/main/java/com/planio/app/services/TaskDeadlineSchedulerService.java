@@ -76,6 +76,7 @@ public class TaskDeadlineSchedulerService {
                 .task(task)
                 .type(days + "_DAYS_BEFORE_DEADLINE")
                 .sentAt(LocalDateTime.now())
+                .read(false)
                 .build();
 
 
