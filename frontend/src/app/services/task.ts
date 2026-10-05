@@ -58,4 +58,10 @@ export class TaskService {
       {}
     );
   }
+
+  unassignTask(taskId: number): Observable<Task> {
+    return this.http.delete<Task>(
+      `${this.apiUrl}/${taskId}/assign`
+    );
+  }
 }

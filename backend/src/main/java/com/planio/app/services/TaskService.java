@@ -227,4 +227,22 @@ public class TaskService {
 
         return mapToDTO(taskRepository.save(task));
     }
+
+    @Transactional
+    public TaskDTO unassignTask(Long taskId) {
+        log.info("Unassigning task {}", taskId);
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ObjectNotFoundException("Task", taskId));
+
+        boardAccessService.checkAccess(task.getBoard(), currentUser);
+
+        task.setAssignedUser(null);
+
+        log.info("Task {} unassigned", taskId);
+
+        return mapToDTO(taskRepository.save(task));
+    }
 }

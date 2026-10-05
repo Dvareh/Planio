@@ -12,4 +12,6 @@ public class BoardDTO {
     private String name;
 
     private Long ownerId;
+
+    private String description;
 }

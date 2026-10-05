@@ -26,7 +26,7 @@ public class UserController {
     @Operation(summary = "Update current user")
     @PutMapping("/me")
     public UserDTO updateMe(
-            @RequestBody UserDTO userDTO)
+            @Valid @RequestBody UserDTO userDTO)
     {
         return userService.updateCurrentUser(userDTO);
     }
