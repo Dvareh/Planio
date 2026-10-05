@@ -32,4 +32,6 @@ public class Board {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> participants = new ArrayList<>();
+
+    private String description;
 }

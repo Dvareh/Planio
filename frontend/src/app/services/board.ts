@@ -42,4 +42,22 @@ export class BoardService {
       `${this.apiUrl}/${boardId}/participants`
     );
   }
+
+  addParticipant(boardId: number, email: string): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiUrl}/${boardId}/participants`,
+      null,
+      {
+        params: {
+          email
+        }
+      }
+    );
+  }
+
+  removeParticipant(boardId: number, userId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/${boardId}/participants/${userId}`
+    );
+  }
 }

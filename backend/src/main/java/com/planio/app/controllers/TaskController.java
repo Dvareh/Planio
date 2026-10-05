@@ -71,4 +71,10 @@ public class TaskController {
                               @PathVariable Long userId) {
         return taskService.assignTask(taskId, userId);
     }
+
+    @Operation(summary = "Unassign task")
+    @DeleteMapping("/{taskId}/assign")
+    public TaskDTO unassignTask(@PathVariable Long taskId) {
+        return taskService.unassignTask(taskId);
+    }
 }

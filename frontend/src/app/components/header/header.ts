@@ -52,4 +52,8 @@ export class Header implements OnInit{
   openNotifications(): void {
     this.router.navigate(['/notifications']);
   }
+
+  openProfile(): void {
+    this.router.navigate(['/profile']);
+  }
 }

@@ -6,11 +6,89 @@
 
   <h1>{{ board?.name }}</h1>
 
+  @if (board?.description) {
+    <p class="board-description">
+      {{ board?.description }}
+    </p>
+  }
+
+  @if (isOwner()) {
+    <button type="button" routerLink="/boards/{{ boardId }}/settings">
+      Board Settings
+    </button>
+  }
+
   <h2>Tasks</h2>
 
   <button type="button" (click)="showCreateForm = true">
     Add Task
   </button>
+
+  <div class="participants">
+
+    <h2>Members</h2>
+
+    @if (isOwner()) {
+      <div class="add-member">
+
+        <input type="email" [(ngModel)]="participantEmail" placeholder="Enter member email" [disabled]="isAddingParticipant">
+
+        <button type="button" (click)="addParticipant()" [disabled]="isAddingParticipant">
+
+          @if (isAddingParticipant) {
+            Adding...
+          } @else {
+            Add member
+          }
+
+        </button>
+
+      </div>
+    }
+
+    @if (participantMessage) {
+      <p class="success">
+        {{ participantMessage }}
+      </p>
+    }
+
+    @if (participantError) {
+      <p class="error">
+        {{ participantError }}
+      </p>
+    }
+
+    @if (participants.length === 0) {
+      <p>No members yet.</p>
+    } @else {
+
+      @for (participant of participants; track participant.id) {
+
+        <div class="participant">
+
+          <div>
+            <strong>{{ participant.username }}</strong>
+            <p>{{ participant.email }}</p>
+          </div>
+
+          @if (board?.ownerId === participant.id) {
+
+            <span>Owner</span>
+
+          } @else {
+
+            <span>Member</span>
+
+            @if (isOwner()) {
+              <button type="button" (click)="removeParticipant(participant.id)">
+                Remove
+              </button>
+            }
+          }
+        </div>
+      }
+    }
+  </div>
 
   @if (tasks.length === 0) {
     <p>No tasks yet.</p>

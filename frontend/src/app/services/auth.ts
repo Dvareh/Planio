@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { CurrentUser } from '../models/current-user';
+import { UserDTO } from '../models/user-dto';
 
 import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth';
 import { environment } from '../environments/environment';
@@ -67,6 +68,36 @@ export class Auth {
         this.logout();
         return of(null);
       })
+    );
+  }
+
+  updateCurrentUser(request: {
+    username: string;
+    email: string;
+  }): Observable<UserDTO> {
+    return this.http.put<UserDTO>(
+      `${environment.apiUrl}/api/users/me`,
+      request
+    ).pipe(
+      tap(user => {
+        if (this.currentUser) {
+          this.currentUser.name = user.username;
+          this.currentUser.email = user.email;
+        }
+      })
+    );
+  }
+
+  changePassword(
+    oldPassword: string,
+    newPassword: string
+  ): Observable<string> {
+    return this.http.put<string>(
+      `${environment.apiUrl}/api/users/change-password`,
+      {
+        oldPassword,
+        newPassword
+      }
     );
   }
 }

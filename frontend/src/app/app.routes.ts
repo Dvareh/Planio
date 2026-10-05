@@ -6,10 +6,11 @@ import { Layout } from './layout/layout';
 import { authGuard } from './guards/auth-guard';
 import {guestGuard} from './guards/guest-guard';
 import { CreateBoardPage } from './pages/create-board/create-board';
-import { EditBoard } from './pages/edit-board/edit-board';
 import { Board } from './pages/board/board';
 import { TaskDetails } from './pages/task-details/task-details';
 import { Notifications } from './pages/notifications/notifications';
+import {Profile} from './pages/profile/profile';
+import { BoardSettings } from './pages/board-settings/board-settings';
 
 export const routes: Routes = [
   {
@@ -41,9 +42,8 @@ export const routes: Routes = [
         canActivate: [authGuard]
       },
       {
-        path: 'edit-board/:id',
-        component: EditBoard,
-        canActivate: [authGuard]
+        path: 'boards/:id/settings',
+        component: BoardSettings
       },
       {
         path: 'boards/:id',
@@ -60,4 +60,9 @@ export const routes: Routes = [
     path: 'notifications',
     component: Notifications
   },
+  {
+    path: 'profile',
+    component: Profile
+  },
+
 ];
