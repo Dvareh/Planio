@@ -72,4 +72,13 @@ public class BoardController {
     public List<UserDTO> getParticipants(@PathVariable Long boardId) {
         return boardService.getParticipants(boardId);
     }
+
+    @Operation(summary = "Remove participant")
+    @DeleteMapping("/{boardId}/participants/{userId}")
+    public void removeParticipant(
+            @PathVariable Long boardId,
+            @PathVariable Long userId) {
+
+        boardService.removeParticipant(boardId, userId);
+    }
 }

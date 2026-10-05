@@ -31,6 +31,7 @@ public class BoardService {
         boardDTO.setId(board.getId());
         boardDTO.setName(board.getName());
         boardDTO.setOwnerId(board.getOwner().getId());
+        boardDTO.setDescription(board.getDescription());
         return boardDTO;
     }
 
@@ -54,6 +55,7 @@ public class BoardService {
                 .name(boardDTO.getName())
                 .owner(user)
                 .participants(new ArrayList<>())
+                .description(boardDTO.getDescription())
                 .build();
 
         return mapToDTO(boardRepository.save(board));
@@ -68,7 +70,7 @@ public class BoardService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ObjectNotFoundException("Board", boardId));
 
-        boardAccessService.checkAccess(board, user);
+        boardAccessService.checkOwner(board, user);
 
         User participant = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ObjectNotFoundException("User", email));
@@ -110,9 +112,10 @@ public class BoardService {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Board", id));
 
-        boardAccessService.checkAccess(board, user);
+        boardAccessService.checkOwner(board, user);
 
         board.setName(boardDTO.getName());
+        board.setDescription(boardDTO.getDescription());
 
         log.info("Board updated id: {}", id);
 
@@ -128,7 +131,7 @@ public class BoardService {
         Board board = boardRepository.findById(id)
                         .orElseThrow(() -> new ObjectNotFoundException("Board", id));
 
-        boardAccessService.checkAccess(board, user);
+        boardAccessService.checkOwner(board, user);
 
         boardRepository.deleteById(id);
     }
@@ -161,5 +164,28 @@ public class BoardService {
         return users.stream()
                 .map(this::mapUserToDTO)
                 .toList();
+    }
+
+    @Transactional
+    public void removeParticipant(Long boardId, Long userId) {
+        log.info("Removing user {} from board {}", userId, boardId);
+
+        User currentUser = currentUserService.getCurrentUser();
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ObjectNotFoundException("Board", boardId));
+
+        boardAccessService.checkOwner(board, currentUser);
+
+        User participant = userRepository.findById(userId)
+                .orElseThrow(() -> new ObjectNotFoundException("User", userId));
+
+        if (!board.getParticipants().remove(participant)) {
+            throw new ObjectNotFoundException("Participant", userId);
+        }
+
+        boardRepository.save(board);
+
+        log.info("User {} removed from board {}", userId, boardId);
     }
 }

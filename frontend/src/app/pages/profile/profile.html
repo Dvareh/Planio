@@ -1,0 +1,158 @@
+<div class="profile">
+
+  <div class="profile-header">
+    <h1>Profile</h1>
+    <p>View and manage your account information.</p>
+  </div>
+
+  @if (isLoading) {
+    <p>Loading profile...</p>
+  }
+
+  @if (!isLoading && errorMessage && !isEditing) {
+    <div class="message error">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (!isLoading) {
+
+    <div class="profile-card">
+
+      <div class="card-header">
+        <div>
+          <h2>Personal information</h2>
+          <p>Your account information.</p>
+        </div>
+
+        @if (!isEditing) {
+          <button type="button" class="secondary-button" (click)="startEditing()">
+            Edit profile
+          </button>
+        }
+      </div>
+
+      @if (!isEditing) {
+
+        <div class="profile-info">
+
+          <div class="info-row">
+            <span class="info-label">Username</span>
+            <span class="info-value">{{ username }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ email }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="info-label">Role</span>
+            <span class="info-value">{{ role }}</span>
+          </div>
+
+        </div>
+
+        @if (successMessage) {
+          <div class="message success">
+            {{ successMessage }}
+          </div>
+        }
+
+      } @else {
+
+        <div class="form-group">
+          <label for="username">Username</label>
+
+          <input id="username" type="text" [(ngModel)]="username" placeholder="Enter username">
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+
+          <input id="email" type="email" [(ngModel)]="email" placeholder="Enter email">
+        </div>
+
+        <div class="form-group">
+          <label for="role">Role</label>
+
+          <input id="role" type="text" [value]="role" disabled>
+        </div>
+
+        @if (errorMessage) {
+          <div class="message error">
+            {{ errorMessage }}
+          </div>
+        }
+
+        <div class="button-group">
+
+          <button type="button" class="primary-button" (click)="saveProfile()" [disabled]="isSaving">
+
+            @if (isSaving) {
+              Saving...
+            } @else {
+              Save changes
+            }
+
+          </button>
+
+          <button type="button" class="secondary-button" (click)="cancelEditing()" [disabled]="isSaving">
+            Cancel
+          </button>
+
+        </div>
+
+      }
+
+    </div>
+
+
+    <div class="profile-card">
+
+      <div class="card-header">
+        <div>
+          <h2>Change password</h2>
+          <p>Update your account password.</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="oldPassword">Current password</label>
+
+        <input id="oldPassword" type="password" [(ngModel)]="oldPassword" placeholder="Enter current password">
+      </div>
+
+      <div class="form-group">
+        <label for="newPassword">New password</label>
+
+        <input id="newPassword" type="password" [(ngModel)]="newPassword" placeholder="Enter new password">
+      </div>
+
+      @if (passwordSuccessMessage) {
+        <div class="message success">
+          {{ passwordSuccessMessage }}
+        </div>
+      }
+
+      @if (passwordErrorMessage) {
+        <div class="message error">
+          {{ passwordErrorMessage }}
+        </div>
+      }
+
+      <button type="button" class="primary-button" (click)="changePassword()" [disabled]="isChangingPassword">
+
+        @if (isChangingPassword) {
+          Changing...
+        } @else {
+          Change password
+        }
+
+      </button>
+
+    </div>
+
+  }
+
+</div>

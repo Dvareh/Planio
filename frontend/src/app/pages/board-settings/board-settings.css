@@ -1,0 +1,112 @@
+.settings-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.settings-header h1 {
+  margin-bottom: 4px;
+}
+
+.settings-header p {
+  margin-top: 0;
+}
+
+.settings-section,
+.danger-section {
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.settings-section h2,
+.danger-section h2 {
+  margin-top: 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea,
+.add-member input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.add-member {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.add-member input {
+  flex: 1;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.member {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.member p {
+  margin: 5px 0 0;
+}
+
+.role {
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+.success-message {
+  margin: 12px 0;
+}
+
+.error-message {
+  margin: 12px 0;
+}
+
+.access-message {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.danger-section {
+  border-color: #ddd;
+}
+
+.delete-button {
+  margin-top: 10px;
+}

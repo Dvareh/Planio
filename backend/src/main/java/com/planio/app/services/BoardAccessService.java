@@ -25,4 +25,13 @@ public class BoardAccessService {
                 || board.getParticipants().stream()
                 .anyMatch(u -> u.getId().equals(user.getId()));
     }
+
+    public void checkOwner(Board board, User user) {
+
+        boolean isOwner = board.getOwner().getId().equals(user.getId());
+
+        if (!isOwner) {
+            throw new AccessDeniedException("Only board owner can perform this action");
+        }
+    }
 }
