@@ -1,0 +1,46 @@
+.participants {
+  margin: 24px 0;
+}
+
+.add-member {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.add-member input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.participant {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.participant p {
+  margin: 4px 0 0;
+}
+
+.participant button {
+  padding: 8px 12px;
+}
+
+.success {
+  margin: 10px 0;
+}
+
+.error {
+  margin: 10px 0;
+}
+
+.board-description {
+  margin-top: 8px;
+  margin-bottom: 20px;
+}

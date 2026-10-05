@@ -171,12 +171,8 @@
               Open
             </button>
 
-            <button type="button" [routerLink]="['/edit-board', board.id]">
+            <button type="button" [routerLink]="['/boards/', board.id, 'settings']">
               Edit
-            </button>
-
-            <button type="button" (click)="confirmDeleteBoard(board)">
-              Delete
             </button>
 
           </div>

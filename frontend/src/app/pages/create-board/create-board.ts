@@ -13,13 +13,15 @@ import { Router } from '@angular/router';
 export class CreateBoardPage {
 
   boardName = '';
+  boardDescription = '';
 
   constructor(private boardService: BoardService,
               private router: Router,) {}
 
   createBoard(): void {
     const board: CreateBoard = {
-      name: this.boardName
+      name: this.boardName,
+      description: this.boardDescription
     };
 
     this.boardService.create(board).subscribe({

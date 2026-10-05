@@ -32,8 +32,17 @@
     </p>
 
     <p>
-      <strong>Assigned user ID:</strong>
-      {{ task.assignedUserId ?? 'Not assigned' }}
+      <strong>Assigned user:</strong>
+
+      @if (task.assignedUserId) {
+        @for (user of participants; track user.id) {
+          @if (user.id === task.assignedUserId) {
+            {{ user.username }}
+          }
+        }
+      } @else {
+        Not assigned
+      }
     </p>
   }
 
@@ -66,6 +75,14 @@
   <button type="button" (click)="assignTask()">
     Assign
   </button>
+
+  @if (task?.assignedUserId) {
+    <button
+      type="button"
+      (click)="unassignTask()">
+      Unassign
+    </button>
+  }
 
   <h2>Comments</h2>
 
@@ -118,9 +135,7 @@
     <p>{{ commentErrorMessage }}</p>
   }
 
-  <button
-    type="button"
-    (click)="addComment()">
+  <button type="button" (click)="addComment()">
     Add comment
   </button>
 

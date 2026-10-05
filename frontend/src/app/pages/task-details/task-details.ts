@@ -220,4 +220,25 @@ export class TaskDetails {
   isCurrentUser(userId: number): boolean {
     return this.auth.currentUser?.id === userId;
   }
+
+  unassignTask(): void {
+    this.assignErrorMessage = '';
+
+    this.taskService.unassignTask(this.taskId).subscribe({
+      next: (task) => {
+        this.task = task;
+
+        this.selectedUserId = null;
+
+        this.changeDetectorRef.detectChanges();
+      },
+      error: (error) => {
+        console.error('Failed to unassign task', error);
+
+        this.assignErrorMessage = 'Failed to unassign task.';
+
+        this.changeDetectorRef.detectChanges();
+      },
+    });
+  }
 }
