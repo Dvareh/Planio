@@ -110,3 +110,31 @@
 .delete-button {
   margin-top: 10px;
 }
+
+.add-label {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.add-label input {
+  flex: 1;
+  padding: 10px;
+}
+
+.labels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 10px;
+
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}

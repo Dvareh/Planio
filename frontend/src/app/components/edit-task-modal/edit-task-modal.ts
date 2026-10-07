@@ -3,6 +3,7 @@ import { TaskStatus } from '../../models/task-status';
 import { TaskService } from '../../services/task';
 import { UpdateTask } from '../../models/update-task';
 import { FormsModule } from '@angular/forms';
+import { TaskPriority } from '../../models/task';
 
 @Component({
   selector: 'app-edit-task-modal',
@@ -20,7 +21,8 @@ export class EditTaskModal {
     title: '',
     description: '',
     dueDate: '',
-    status: 'TODO' as TaskStatus
+    status: 'TODO' as TaskStatus,
+    priority: 'MEDIUM' as TaskPriority,
   };
 
   errorMessage = '';
@@ -75,7 +77,8 @@ export class EditTaskModal {
       title: this.task.title,
       description: this.task.description,
       dueDate: this.task.dueDate,
-      status: this.task.status
+      status: this.task.status,
+      priority: this.task.priority,
     };
 
     this.taskService.update(this.taskId, updatedTask).subscribe({

@@ -1,142 +1,294 @@
 <div class="task-page">
-
-  <button type="button" routerLink="/dashboard">
-    Back to Dashboard
-  </button>
-
   @if (isLoading) {
 
     <p>Loading task...</p>
 
   } @else if (errorMessage) {
 
-    <p>{{ errorMessage }}</p>
+    <p class="error-message">
+      {{ errorMessage }}
+    </p>
 
   } @else if (task) {
 
-    <h1>{{ task.title }}</h1>
+    <div class="task-header">
+      <div>
 
-    <p>
-      <strong>Description:</strong>
-      {{ task.description }}
-    </p>
+        <button type="button" [routerLink]="['/boards', task.boardId]">
+          Back to Board
+        </button>
 
-    <p>
-      <strong>Due date:</strong>
-      {{ task.dueDate }}
-    </p>
-
-    <p>
-      <strong>Status:</strong>
-      {{ task.status | taskStatusLabel }}
-    </p>
-
-    <p>
-      <strong>Assigned user:</strong>
-
-      @if (task.assignedUserId) {
-        @for (user of participants; track user.id) {
-          @if (user.id === task.assignedUserId) {
-            {{ user.username }}
-          }
-        }
-      } @else {
-        Not assigned
-      }
-    </p>
-  }
-
-  <h2>Assignment</h2>
-
-  <label>
-    Assign to
-
-    <select [(ngModel)]="selectedUserId">
-      <option [ngValue]="null">
-        Select user
-      </option>
-
-      @for (user of participants; track user.id) {
-        <option [ngValue]="user.id">
-          {{ user.username }}
-          @if (isCurrentUser(user.id)) {
-            (me)
-          }
-          ({{ user.email }})
-        </option>
-      }
-    </select>
-  </label>
-
-  @if (assignErrorMessage) {
-    <p>{{ assignErrorMessage }}</p>
-  }
-
-  <button type="button" (click)="assignTask()">
-    Assign
-  </button>
-
-  @if (task?.assignedUserId) {
-    <button
-      type="button"
-      (click)="unassignTask()">
-      Unassign
-    </button>
-  }
-
-  <h2>Comments</h2>
-
-  @if (comments.length === 0) {
-
-    <p>No comments yet.</p>
-
-  } @else {
-    @for (comment of comments; track comment.id) {
-      <div class="comment">
-        <p>
-          <strong>User {{ comment.userId }}</strong>
+        <p class="task-key">
+          {{ task.taskKey }}
         </p>
 
-        @if (editingCommentId === comment.id && isCurrentUser(comment.userId)) {
-          <textarea [(ngModel)]="editingCommentText" rows="3"></textarea>
+        <h1>
+          {{ task.title }}
+        </h1>
 
-          <button type="button" (click)="saveComment(comment.id)">
-            Save
-          </button>
-
-          <button type="button" (click)="editingCommentId = null">
-            Cancel
-          </button>
-
-        } @else {
-          <p>
-            {{ comment.text }}
-          </p>
-
-          @if (isCurrentUser(comment.userId)) {
-            <button type="button" (click)="startEditComment(comment)">
-              Edit
-            </button>
-
-            <button type="button" (click)="deleteComment(comment.id)">
-              Delete
-            </button>
-          }
-        }
       </div>
-    }
+
+    </div>
+
+
+    <div class="task-info-grid">
+
+      <div class="task-info-item">
+        <span>Status</span>
+
+        <strong>
+          {{ task.status | taskStatusLabel }}
+        </strong>
+      </div>
+
+
+      <div class="task-info-item">
+        <span>Priority</span>
+
+        <strong>
+          {{ task.priority | taskPriorityLabel }}
+        </strong>
+      </div>
+
+
+      <div class="task-info-item">
+        <span>Due Date</span>
+
+        <strong>
+          {{ task.dueDate }}
+        </strong>
+      </div>
+
+
+      <div class="task-info-item">
+        <span>Assigned User</span>
+
+        <strong>
+          {{ getAssignedUserName() }}
+        </strong>
+      </div>
+
+    </div>
+
+    <section class="task-section">
+
+      <h2>Description</h2>
+
+      @if (task.description) {
+
+        <p class="task-description">
+          {{ task.description }}
+        </p>
+
+      } @else {
+
+        <p class="empty-text">
+          No description.
+        </p>
+
+      }
+
+    </section>
+
+
+    <section class="task-section">
+
+      <h2>Labels</h2>
+
+      @if (task.labels.length > 0) {
+        <div class="task-labels">
+
+          @for (label of task.labels; track label.id) {
+
+            <span class="task-label">
+
+              {{ label.name }}
+
+              <button type="button" class="label-remove-button" (click)="removeLabel(label.id)">
+                ×
+              </button>
+
+            </span>
+
+          }
+
+        </div>
+
+      } @else {
+
+        <p class="empty-text">
+          No labels assigned.
+        </p>
+
+      }
+
+
+      <h3>Available Labels</h3>
+
+      <div class="available-labels">
+
+        @for (label of availableLabels; track label.id) {
+
+          @if (!hasLabel(label.id)) {
+
+            <button type="button" (click)="addLabel(label.id)">
+              + {{ label.name }}
+            </button>
+
+          }
+
+        }
+
+      </div>
+
+
+      @if (labelErrorMessage) {
+
+        <p class="error-message">
+          {{ labelErrorMessage }}
+        </p>
+
+      }
+
+    </section>
+
+
+    <section class="task-section">
+
+      <h2>Assignment</h2>
+
+      <div class="assignment-controls">
+
+        <label>
+          Assign to
+
+          <select [(ngModel)]="selectedUserId">
+
+            <option [ngValue]="null">
+              Select user
+            </option>
+
+            @for (user of participants; track user.id) {
+              <option [ngValue]="user.id">
+
+                {{ user.username }}
+
+                @if (isCurrentUser(user.id)) {
+                  (me)
+                }
+                - {{ user.email }}
+
+              </option>
+
+            }
+
+          </select>
+        </label>
+
+        <div class="assignment-buttons">
+
+          <button type="button" (click)="assignTask()">
+            Assign
+          </button>
+
+          @if (task.assignedUserId) {
+
+            <button type="button" (click)="unassignTask()">
+              Unassign
+            </button>
+
+          }
+        </div>
+
+      </div>
+
+      @if (assignErrorMessage) {
+
+        <p class="error-message">
+          {{ assignErrorMessage }}
+        </p>
+
+      }
+
+    </section>
+
+
+    <section class="task-section">
+
+      <h2>Comments</h2>
+
+      @if (comments.length === 0) {
+
+        <p class="empty-text">
+          No comments yet.
+        </p>
+
+      } @else {
+
+        @for (comment of comments; track comment.id) {
+
+          <div class="comment">
+
+            <p>
+              <strong>
+                User {{ comment.userId }}
+              </strong>
+            </p>
+
+            @if (editingCommentId === comment.id && isCurrentUser(comment.userId)) {
+              <textarea [(ngModel)]="editingCommentText" rows="3"></textarea>
+
+              <div class="comment-actions">
+
+                <button type="button" (click)="saveComment(comment.id)">
+                  Save
+                </button>
+
+                <button type="button" (click)="editingCommentId = null">
+                  Cancel
+                </button>
+
+              </div>
+
+            } @else {
+
+              <p>
+                {{ comment.text }}
+              </p>
+
+              @if (isCurrentUser(comment.userId)) {
+                <div class="comment-actions">
+
+                  <button type="button" (click)="startEditComment(comment)">
+                    Edit
+                  </button>
+
+                  <button type="button" (click)="deleteComment(comment.id)">
+                    Delete
+                  </button>
+
+                </div>
+              }
+            }
+          </div>
+        }
+      }
+
+      <h3>Add Comment</h3>
+
+      <textarea [(ngModel)]="newCommentText" placeholder="Write a comment..." rows="4"></textarea>
+
+      @if (commentErrorMessage) {
+        <p class="error-message">
+          {{ commentErrorMessage }}
+        </p>
+
+      }
+      <button type="button" (click)="addComment()">
+        Add Comment
+      </button>
+    </section>
+
   }
-
-  <h3>Add comment</h3>
-
-  <textarea [(ngModel)]="newCommentText" placeholder="Write a comment..." rows="4"></textarea>
-
-  @if (commentErrorMessage) {
-    <p>{{ commentErrorMessage }}</p>
-  }
-
-  <button type="button" (click)="addComment()">
-    Add comment
-  </button>
 
 </div>

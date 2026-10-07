@@ -4,14 +4,22 @@
   <form (ngSubmit)="createBoard()">
     <div>
       <label for="boardName">Board name</label>
-      <input
-        id="boardName"
-        type="text"
-        [(ngModel)]="boardName"
-        name="boardName"
-        placeholder="Enter board name"
-        required
-      >
+      <input id="boardName" type="text" [(ngModel)]="boardName" name="boardName" placeholder="Enter board name" required>
+
+      <label>
+        Board Key
+        <input type="text" name="boardKey" maxlength="10" [(ngModel)]="boardKey" [placeholder]="suggestedKey">
+      </label>
+
+      @if (!boardKey.trim()) {
+        <small>
+          Suggested key: {{ suggestedKey }}
+        </small>
+      }
+
+      <p>
+        The key is used for task identifiers and cannot be changed later.
+      </p>
     </div>
 
     <button type="submit" [disabled]="!boardName.trim()">

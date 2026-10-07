@@ -6,6 +6,8 @@ import { BoardService } from '../../services/board';
 import { Auth } from '../../services/auth';
 import { Board } from '../../models/board';
 import { User } from '../../models/user';
+import { Label } from '../../models/label';
+import { LabelService } from '../../services/label';
 
 @Component({
   selector: 'app-board-settings',
@@ -34,12 +36,20 @@ export class BoardSettings implements OnInit {
   participantMessage = '';
   participantError = '';
 
+  labels: Label[] = [];
+
+  newLabelName = '';
+
+  labelMessage = '';
+  labelError = '';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private boardService: BoardService,
     private auth: Auth,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private labelService: LabelService,
   ) {}
 
   ngOnInit(): void {
@@ -60,6 +70,7 @@ export class BoardSettings implements OnInit {
         this.description = board.description || '';
 
         this.loadParticipants();
+        this.loadLabels();
 
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
@@ -83,6 +94,24 @@ export class BoardSettings implements OnInit {
       },
       error: (error) => {
         console.error('Failed to load participants', error);
+      }
+    });
+  }
+
+  loadLabels(): void {
+
+    this.labelService.getBoardLabels(this.boardId).subscribe({
+      next: (labels) => {
+        this.labels = labels;
+
+        this.changeDetectorRef.detectChanges();
+      },
+      error: (error) => {
+        console.error('Failed to load labels', error);
+
+        this.labelError = 'Failed to load labels.';
+
+        this.changeDetectorRef.detectChanges();
       }
     });
   }
@@ -204,6 +233,75 @@ export class BoardSettings implements OnInit {
 
         this.errorMessage = 'Failed to delete board.';
         this.isDeleting = false;
+
+        this.changeDetectorRef.detectChanges();
+      }
+    });
+  }
+
+  createLabel(): void {
+
+    this.labelMessage = '';
+    this.labelError = '';
+
+    const name = this.newLabelName.trim();
+
+    if (!name) {
+      this.labelError = 'Label name is required.';
+      return;
+    }
+
+    this.labelService.createLabel(this.boardId, name).subscribe({
+      next: () => {
+        this.newLabelName = '';
+
+        this.labelMessage = 'Label created successfully.';
+
+        this.loadLabels();
+
+        this.changeDetectorRef.detectChanges();
+      },
+      error: (error) => {
+        console.error('Failed to create label', error);
+
+        if (error.status === 409) {
+          this.labelError = 'A label with this name already exists.';
+        } else {
+          this.labelError = 'Failed to create label.';
+        }
+
+        this.changeDetectorRef.detectChanges();
+      }
+    });
+  }
+
+  deleteLabel(labelId: number): void {
+
+    const confirmed = confirm(
+      'Are you sure you want to delete this label?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.labelMessage = '';
+    this.labelError = '';
+
+    this.labelService.deleteLabel(this.boardId, labelId).subscribe({
+      next: () => {
+
+        this.labelMessage = 'Label deleted successfully.';
+
+        this.loadLabels();
+
+        this.changeDetectorRef.detectChanges();
+      },
+      error: (error) => {
+        console.error('Failed to delete label', error);
+
+        this.labelError =
+          'Failed to delete label.';
 
         this.changeDetectorRef.detectChanges();
       }

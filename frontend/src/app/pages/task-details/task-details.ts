@@ -12,10 +12,13 @@ import { CreateComment } from '../../models/create-comment';
 import { UpdateComment } from '../../models/update-comment';
 import { Auth } from '../../services/auth';
 import { TaskStatusLabelPipe } from '../../pipes/task-status-label-pipe';
+import { TaskPriorityLabelPipe } from '../../pipes/task-priority-label-pipe';
+import { Label } from '../../models/label';
+import { LabelService } from '../../services/label';
 
 @Component({
   selector: 'app-task-details',
-  imports: [RouterLink, FormsModule, TaskStatusLabelPipe],
+  imports: [RouterLink, FormsModule, TaskStatusLabelPipe, TaskPriorityLabelPipe],
   templateUrl: './task-details.html',
   styleUrl: './task-details.css',
 })
@@ -40,6 +43,9 @@ export class TaskDetails {
   editingCommentId: number | null = null;
   editingCommentText = '';
 
+  availableLabels: Label[] = [];
+  labelErrorMessage = '';
+
   constructor(
     private route: ActivatedRoute,
     private taskService: TaskService,
@@ -47,6 +53,7 @@ export class TaskDetails {
     private boardService: BoardService,
     private commentService: CommentService,
     private auth: Auth,
+    private labelService: LabelService,
   ) {}
 
   ngOnInit(): void {
@@ -83,6 +90,7 @@ export class TaskDetails {
         this.board = board;
 
         this.loadParticipants(boardId);
+        this.loadLabels(boardId);
 
         this.changeDetectorRef.detectChanges();
       },
@@ -240,5 +248,82 @@ export class TaskDetails {
         this.changeDetectorRef.detectChanges();
       },
     });
+  }
+
+  loadLabels(boardId: number): void {
+
+    this.labelService.getBoardLabels(boardId).subscribe({
+      next: (labels) => {
+        this.availableLabels = labels;
+
+        this.changeDetectorRef.detectChanges();
+      },
+      error: (error) => {
+        console.error('Failed to load labels', error);
+      }
+    });
+  }
+
+  hasLabel(labelId: number): boolean {
+    if (!this.task) {
+      return false;
+    }
+    for (const label of this.task.labels) {
+      if (label.id === labelId) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  addLabel(labelId: number): void {
+    this.labelErrorMessage = '';
+
+    this.taskService.addLabel(this.taskId, labelId).subscribe({
+      next: (task) => {
+        this.task = task;
+        this.changeDetectorRef.detectChanges();
+      },
+      error: (error) => {
+        console.error('Failed to add label', error
+        );
+
+        this.labelErrorMessage = 'Failed to add label.';
+
+        this.changeDetectorRef.detectChanges();
+      }
+    });
+  }
+
+  removeLabel(labelId: number): void {
+    this.labelErrorMessage = '';
+
+    this.taskService.removeLabel(this.taskId, labelId).subscribe({
+      next: (task) => {
+        this.task = task;
+        this.changeDetectorRef.detectChanges();
+      },
+      error: (error) => {
+        console.error('Failed to remove label', error);
+
+        this.labelErrorMessage = 'Failed to remove label.';
+
+        this.changeDetectorRef.detectChanges();
+      }
+    });
+  }
+
+  getAssignedUserName(): string {
+    if (!this.task || this.task.assignedUserId === null) {
+      return 'Not assigned';
+    }
+
+    for (const user of this.participants) {
+      if (user.id === this.task.assignedUserId) {
+        return user.username;
+      }
+    }
+
+    return 'Unknown user';
   }
 }
