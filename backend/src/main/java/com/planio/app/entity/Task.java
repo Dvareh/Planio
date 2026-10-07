@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "tasks")
@@ -41,4 +43,19 @@ public class Task {
 
     @Column(nullable = false)
     private Boolean reminder1DaySent = false;
+
+    @Enumerated(EnumType.STRING)
+    private TaskPriority priority;
+
+    @ManyToMany
+    @JoinTable(
+            name = "task_labels",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "label_id")
+    )
+    @Builder.Default
+    private Set<Label> labels = new HashSet<>();
+
+    @Column(name = "task_number", nullable = false)
+    private Long taskNumber;
 }

@@ -130,6 +130,55 @@
 
       </section>
 
+      <section class="settings-section">
+
+        <h2>Labels</h2>
+
+        <p>
+          Labels are available for all tasks on this board.
+        </p>
+
+        <div class="add-label">
+
+          <input type="text" placeholder="New label name" maxlength="50" [(ngModel)]="newLabelName">
+
+          <button type="button" (click)="createLabel()">
+            Add Label
+          </button>
+
+        </div>
+
+        @if (labelMessage) {
+          <p class="success-message">
+            {{ labelMessage }}
+          </p>
+        }
+
+        @if (labelError) {
+          <p class="error-message">
+            {{ labelError }}
+          </p>
+        }
+
+        <div class="labels-list">
+
+          @for (label of labels; track label.id) {
+
+            <div class="label-item">
+
+        <span>
+          {{ label.name }}
+        </span>
+
+              <button type="button" (click)="deleteLabel(label.id)">
+                Delete
+              </button>
+
+            </div>
+          }
+        </div>
+
+      </section>
 
       <section class="danger-section">
 
