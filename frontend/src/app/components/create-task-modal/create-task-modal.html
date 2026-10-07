@@ -30,6 +30,17 @@
       </select>
     </label>
 
+    <label>
+      Priority
+
+      <select [(ngModel)]="task.priority">
+        <option value="LOW">Low</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HIGH">High</option>
+        <option value="URGENT">Urgent</option>
+      </select>
+    </label>
+
     @if (errorMsg) {
       <p>{{ errorMsg }}</p>
     }

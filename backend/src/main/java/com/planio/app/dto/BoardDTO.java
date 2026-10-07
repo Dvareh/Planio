@@ -14,4 +14,6 @@ public class BoardDTO {
     private Long ownerId;
 
     private String description;
+
+    private String key;
 }

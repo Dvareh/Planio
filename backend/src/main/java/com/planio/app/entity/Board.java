@@ -34,4 +34,10 @@ public class Board {
     private List<User> participants = new ArrayList<>();
 
     private String description;
+
+    @Column(name = "board_key", nullable = false, length = 10)
+    private String key;
+
+    @Column(name = "next_task_number", nullable = false)
+    private Long nextTaskNumber;
 }

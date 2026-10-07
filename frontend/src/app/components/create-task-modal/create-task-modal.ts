@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { TaskStatus } from '../../models/task-status';
 import { TaskService } from '../../services/task';
 import { CreateTask } from '../../models/create-task';
+import { TaskPriority } from '../../models/task';
 
 @Component({
   selector: 'app-create-task-modal',
@@ -21,15 +22,18 @@ export class CreateTaskModal {
     title: '',
     description: '',
     dueDate: '',
-    status: 'TODO' as TaskStatus
+    status: 'TODO' as TaskStatus,
+    priority: 'MEDIUM' as TaskPriority,
   };
 
   errorMsg = '';
 
-  constructor(private taskService: TaskService,
-              private changeDetectorRef: ChangeDetectorRef,) {}
+  constructor(
+    private taskService: TaskService,
+    private changeDetectorRef: ChangeDetectorRef,
+  ) {}
 
-  createTask() {
+  createTask(): void {
     this.errorMsg = '';
 
     if (!this.task.title.trim()) {
@@ -47,8 +51,9 @@ export class CreateTaskModal {
       description: this.task.description,
       dueDate: this.task.dueDate,
       status: this.task.status,
-      boardId: this.boardId
-    }
+      priority: this.task.priority,
+      boardId: this.boardId,
+    };
 
     this.taskService.create(newTask).subscribe({
       next: () => {
@@ -56,8 +61,9 @@ export class CreateTaskModal {
       },
       error: (error) => {
         console.error('Failed to create task', error);
+
         this.errorMsg = 'Failed to create task.';
-        this.changeDetectorRef.detectChanges()
+        this.changeDetectorRef.detectChanges();
       }
     });
   }
