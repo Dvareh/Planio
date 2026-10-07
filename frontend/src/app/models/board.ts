@@ -3,4 +3,5 @@ export interface Board {
   name: string;
   ownerId: number;
   description: string;
+  key: string;
 }

@@ -6,6 +6,8 @@ import { CreateTask } from '../models/create-task';
 import { UpdateTask } from '../models/update-task';
 import { TaskPage } from '../models/task-page';
 import { Task } from '../models/task';
+import { TaskFilters } from '../models/task-filters';
+import { TaskStatus } from '../models/task-status';
 
 @Injectable({
   providedIn: 'root'
@@ -19,19 +21,42 @@ export class TaskService {
     return this.http.get<Task>(`${this.apiUrl}/${id}`);
   }
 
-  getTasks(
-    boardId: number,
-    page: number = 0,
-    size: number = 10,
-    sortBy: string = 'dueDate',
-    direction: string = 'asc'
-  ): Observable<TaskPage> {
-    const params = new HttpParams()
-      .set('boardId', boardId)
-      .set('page', page)
-      .set('size', size)
-      .set('sortBy', sortBy)
-      .set('direction', direction);
+  getTasks(filters: TaskFilters): Observable<TaskPage> {
+
+    let params = new HttpParams()
+      .set('boardId', filters.boardId)
+      .set('page', filters.page)
+      .set('size', filters.size)
+      .set('sortBy', filters.sortBy)
+      .set('direction', filters.direction);
+
+    if (filters.search) {
+      params = params.set('search', filters.search);
+    }
+
+    if (filters.status) {
+      params = params.set('status', filters.status);
+    }
+
+    if (filters.priority) {
+      params = params.set('priority', filters.priority);
+    }
+
+    if (filters.assignedUserId !== undefined) {
+      params = params.set('assignedUserId', filters.assignedUserId);
+    }
+
+    if (filters.labelId !== undefined) {
+      params = params.set('labelId', filters.labelId);
+    }
+
+    if (filters.dueDateFrom) {
+      params = params.set('dueDateFrom', filters.dueDateFrom);
+    }
+
+    if (filters.dueDateTo) {
+      params = params.set('dueDateTo', filters.dueDateTo);
+    }
 
     return this.http.get<TaskPage>(this.apiUrl, { params });
   }
@@ -62,6 +87,30 @@ export class TaskService {
   unassignTask(taskId: number): Observable<Task> {
     return this.http.delete<Task>(
       `${this.apiUrl}/${taskId}/assign`
+    );
+  }
+
+  addLabel(taskId: number, labelId: number): Observable<Task> {
+    return this.http.post<Task>(
+      `${this.apiUrl}/${taskId}/labels/${labelId}`,
+      {}
+    );
+  }
+
+  removeLabel(taskId: number, labelId: number): Observable<Task> {
+    return this.http.delete<Task>(
+      `${this.apiUrl}/${taskId}/labels/${labelId}`
+    );
+  }
+
+  updateStatus(
+    taskId: number,
+    status: TaskStatus
+  ): Observable<Task> {
+    return this.http.put<Task>(
+      `${this.apiUrl}/${taskId}/status`,
+      {},
+      { params: { status: status } }
     );
   }
 }

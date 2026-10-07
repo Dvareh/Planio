@@ -2,6 +2,7 @@ package com.planio.app.controllers;
 
 
 import com.planio.app.dto.TaskDTO;
+import com.planio.app.entity.TaskPriority;
 import com.planio.app.entity.TaskStatus;
 import com.planio.app.services.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -33,24 +35,65 @@ public class TaskController {
         return taskService.getById(id);
     }
 
-    @Operation(summary = "Get all tasks")
+    @Operation(summary = "Get tasks with filters")
     @GetMapping
     public Page<TaskDTO> getTasks(
-            @RequestParam(required = false) Long boardId,
-            @RequestParam(required = false) TaskStatus status,
-            @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "dueDate") String sortBy,
-            @RequestParam(defaultValue = "asc") String direction
-    ) {
-        return taskService.getTasks(boardId, status, search, page, size, sortBy, direction);
+
+            @RequestParam(required = false)
+            Long boardId,
+
+            @RequestParam(required = false)
+            TaskStatus status,
+
+            @RequestParam(required = false)
+            TaskPriority priority,
+
+            @RequestParam(required = false)
+            Long assignedUserId,
+
+            @RequestParam(required = false)
+            Long labelId,
+
+            @RequestParam(required = false)
+            String search,
+
+            @RequestParam(required = false)
+            LocalDate dueDateFrom,
+
+            @RequestParam(required = false)
+            LocalDate dueDateTo,
+
+            @RequestParam(defaultValue = "0")
+            int page,
+
+            @RequestParam(defaultValue = "10")
+            int size,
+
+            @RequestParam(defaultValue = "dueDate")
+            String sortBy,
+
+            @RequestParam(defaultValue = "asc")
+            String direction) {
+
+        return taskService.getTasks(
+                boardId,
+                status,
+                priority,
+                assignedUserId,
+                labelId,
+                search,
+                dueDateFrom,
+                dueDateTo,
+                page,
+                size,
+                sortBy,
+                direction
+        );
     }
 
     @Operation(summary = "Update task")
     @PutMapping("/{id}")
-    public TaskDTO update(@PathVariable Long id,
-                          @RequestBody @Valid TaskDTO taskDTO) {
+    public TaskDTO update(@PathVariable Long id, @RequestBody @Valid TaskDTO taskDTO) {
         return taskService.update(id, taskDTO);
     }
 
@@ -67,8 +110,7 @@ public class TaskController {
     }
 
     @PutMapping("/{taskId}/assign/{userId}")
-    public TaskDTO assignTask(@PathVariable Long taskId,
-                              @PathVariable Long userId) {
+    public TaskDTO assignTask(@PathVariable Long taskId, @PathVariable Long userId) {
         return taskService.assignTask(taskId, userId);
     }
 
@@ -76,5 +118,23 @@ public class TaskController {
     @DeleteMapping("/{taskId}/assign")
     public TaskDTO unassignTask(@PathVariable Long taskId) {
         return taskService.unassignTask(taskId);
+    }
+
+    @Operation(summary = "Add label to task")
+    @PostMapping("/{taskId}/labels/{labelId}")
+    public TaskDTO addLabel(@PathVariable Long taskId, @PathVariable Long labelId) {
+        return taskService.addLabel(taskId, labelId);
+    }
+
+    @Operation(summary = "Remove label from task")
+    @DeleteMapping("/{taskId}/labels/{labelId}")
+    public TaskDTO removeLabel(@PathVariable Long taskId, @PathVariable Long labelId) {
+        return taskService.removeLabel(taskId, labelId);
+    }
+
+    @Operation(summary = "Update task status")
+    @PutMapping("/{taskId}/status")
+    public TaskDTO updateStatus(@PathVariable Long taskId, @RequestParam TaskStatus status) {
+        return taskService.updateStatus(taskId, status);
     }
 }

@@ -90,40 +90,403 @@
     }
   </div>
 
-  @if (tasks.length === 0) {
-    <p>No tasks yet.</p>
-  } @else {
-    <div class="task-list">
+  <div class="task-filters">
 
-      @for (task of tasks; track task.id) {
-        <div class="task">
-          <h3>
-            <a [routerLink]="['/tasks', task.id]">
-              {{ task.title }}
-            </a>
-          </h3>
-          <p>{{ task.description }}</p>
-          <p>Due date: {{ task.dueDate }}</p>
-          <p>Status: {{ task.status | taskStatusLabel }}
-            @if (task.dueDate | taskDeadline: task.status) {
-              | {{ task.dueDate | taskDeadline: task.status }}
-            }
-          </p>
+    <h2>Filters</h2>
 
-          <button type="button" (click)="openEditTask(task.id)">
-            Edit
-          </button>
 
-          <button type="button" (click)="openDeleteTask(task.id, task.title)">
-            Delete
-          </button>
+    <div class="filter-row">
 
-        </div>
-      }
+      <label>
+        Search
+
+        <input
+          type="text"
+          placeholder="Search by title"
+          [(ngModel)]="search"
+        >
+      </label>
+
+
+      <label>
+        Status
+
+        <select [(ngModel)]="selectedStatus">
+
+          <option value="">
+            All statuses
+          </option>
+
+          <option value="TODO">
+            To Do
+          </option>
+
+          <option value="IN_PROGRESS">
+            In Progress
+          </option>
+
+          <option value="DONE">
+            Done
+          </option>
+
+          <option value="CANCELLED">
+            Cancelled
+          </option>
+
+        </select>
+      </label>
+
+      <label>
+        Priority
+
+        <select [(ngModel)]="selectedPriority">
+
+          <option value="">
+            All priorities
+          </option>
+
+          <option value="LOW">
+            Low
+          </option>
+
+          <option value="MEDIUM">
+            Medium
+          </option>
+
+          <option value="HIGH">
+            High
+          </option>
+
+          <option value="URGENT">
+            Urgent
+          </option>
+
+        </select>
+      </label>
 
     </div>
-  }
 
+    <div class="filter-row">
+
+      <label>
+        Assigned User
+
+        <select [(ngModel)]="selectedAssignedUserId">
+
+          <option [ngValue]="null">
+            All users
+          </option>
+
+          @for (user of participants; track user.id) {
+
+            <option [ngValue]="user.id">
+              {{ user.username }}
+            </option>
+
+          }
+
+        </select>
+      </label>
+
+
+      <label>
+        Label
+        <select [(ngModel)]="selectedLabelId">
+
+          <option [ngValue]="null">
+            All labels
+          </option>
+
+          @for (label of labels; track label.id) {
+            <option [ngValue]="label.id">
+              {{ label.name }}
+            </option>
+
+          }
+
+        </select>
+      </label>
+
+    </div>
+
+    <div class="filter-row">
+
+      <label>
+        Due From
+        <input type="date" [(ngModel)]="dueDateFrom">
+      </label>
+
+      <label>
+        Due To
+        <input type="date" [(ngModel)]="dueDateTo">
+      </label>
+
+    </div>
+
+    <div class="filter-actions">
+      <button type="button" (click)="applyFilters()">
+        Apply Filters
+      </button>
+
+      <button type="button" (click)="clearFilters()">
+        Clear
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="view-switch">
+
+    <button type="button" (click)="changeView('list')" [class.active]="viewMode === 'list'">
+      List
+    </button>
+
+    <button type="button" (click)="changeView('kanban')" [class.active]="viewMode === 'kanban'">
+      Kanban
+    </button>
+
+  </div>
+  @if (viewMode === 'list') {
+    @if (tasks.length === 0) {
+      <p>No tasks yet.</p>
+    } @else {
+      <div class="task-list">
+
+        @for (task of tasks; track task.id) {
+          <div class="task">
+            <h3>
+              <span class="task-key">{{ task.taskKey }}</span>
+              <h3>
+                {{ task.title }}
+              </h3>
+              <a [routerLink]="['/tasks', task.id]">
+                {{ task.title }}
+              </a>
+            </h3>
+
+            <p>{{ task.description }}</p>
+
+            <p>Due date: {{ task.dueDate }}</p>
+
+            <p>Status: {{ task.status | taskStatusLabel }}
+              @if (task.dueDate | taskDeadline: task.status) {
+                | {{ task.dueDate | taskDeadline: task.status }}
+              }
+            </p>
+
+            <p>Priority: {{ task.priority | taskPriorityLabel }}</p>
+
+            @if (task.labels.length > 0) {
+              <div class="task-labels">
+                @for (label of task.labels; track label.id) {
+                  <span class="task-label">
+                    {{ label.name }}
+                  </span>
+                }
+              </div>
+            }
+
+            <button type="button" (click)="openEditTask(task.id)">
+              Edit
+            </button>
+
+            <button type="button" (click)="openDeleteTask(task.id, task.title)">
+              Delete
+            </button>
+
+          </div>
+        }
+
+      </div>
+    }
+  }
+  @if (viewMode === 'kanban') {
+    <div class="kanban-board" cdkDropListGroup>
+
+      <div class="kanban-column">
+
+        <div class="kanban-column-header">
+          <h3>To Do</h3>
+          <span>{{ todoTasks.length }}</span>
+        </div>
+
+        <div class="kanban-tasks" cdkDropList [cdkDropListData]="todoTasks" [cdkDropListSortingDisabled]="true" (cdkDropListDropped)="dropTask($event, 'TODO')">
+
+          @for (task of todoTasks; track task.id) {
+
+            <div class="kanban-card" cdkDrag [cdkDragData]="task" [routerLink]="['/tasks', task.id]">
+
+              <span class="task-key">{{ task.taskKey }}</span>
+
+              <h4>{{ task.title }}</h4>
+
+              <p>
+                Priority:
+                {{ task.priority | taskPriorityLabel }}
+              </p>
+
+              <p>
+                Due:
+                {{ task.dueDate }}
+              </p>
+
+              @if (task.labels.length > 0) {
+                <div class="kanban-labels">
+
+                  @for (label of task.labels; track label.id) {
+
+                    <span class="kanban-label">{{ label.name }}</span>
+                  }
+                </div>
+              }
+            </div>
+
+          } @empty {
+            <p class="empty-column">
+              No tasks
+            </p>
+          }
+        </div>
+
+      </div>
+
+      <div class="kanban-column">
+
+        <div class="kanban-column-header">
+          <h3>In Progress</h3>
+          <span>{{ inProgressTasks.length }}</span>
+        </div>
+
+        <div class="kanban-tasks" cdkDropList [cdkDropListData]="inProgressTasks" [cdkDropListSortingDisabled]="true" (cdkDropListDropped)="dropTask($event, 'IN_PROGRESS')">
+
+          @for (task of inProgressTasks; track task.id) {
+
+            <div class="kanban-card" cdkDrag [cdkDragData]="task" [routerLink]="['/tasks', task.id]">
+
+              <span class="task-key">{{ task.taskKey }}</span>
+
+              <h4>{{ task.title }}</h4>
+
+              <p>
+                Priority:
+                {{ task.priority | taskPriorityLabel }}
+              </p>
+
+              <p>
+                Due:
+                {{ task.dueDate }}
+              </p>
+
+              @if (task.labels.length > 0) {
+
+                <div class="kanban-labels">
+
+                  @for (label of task.labels; track label.id) {
+                    <span class="kanban-label">{{ label.name }}</span>
+
+                  }
+                </div>
+              }
+            </div>
+          } @empty {
+
+            <p class="empty-column">
+              No tasks
+            </p>
+          }
+        </div>
+      </div>
+
+      <div class="kanban-column">
+        <div class="kanban-column-header">
+          <h3>Done</h3>
+          <span>{{ doneTasks.length }}</span>
+        </div>
+
+        <div class="kanban-tasks" cdkDropList [cdkDropListData]="doneTasks" [cdkDropListSortingDisabled]="true" (cdkDropListDropped)="dropTask($event, 'DONE')">
+
+          @for (task of doneTasks; track task.id) {
+
+            <div class="kanban-card" cdkDrag [cdkDragData]="task" [routerLink]="['/tasks', task.id]">
+
+              <span class="task-key">{{ task.taskKey }}</span>
+
+              <h4>{{ task.title }}</h4>
+
+              <p>
+                Priority:
+                {{ task.priority | taskPriorityLabel }}
+              </p>
+
+              <p>
+                Due:
+                {{ task.dueDate }}
+              </p>
+
+              @if (task.labels.length > 0) {
+                <div class="kanban-labels">
+                  @for (label of task.labels; track label.id) {
+                    <span class="kanban-label">{{ label.name }}</span>
+
+                  }
+                </div>
+              }
+            </div>
+
+          } @empty {
+            <p class="empty-column">
+              No tasks
+            </p>
+          }
+        </div>
+      </div>
+
+      <div class="kanban-column">
+
+        <div class="kanban-column-header">
+          <h3>Cancelled</h3>
+          <span>{{ cancelledTasks.length }}</span>
+        </div>
+
+        <div class="kanban-tasks" cdkDropList [cdkDropListData]="cancelledTasks" [cdkDropListSortingDisabled]="true" (cdkDropListDropped)="dropTask($event, 'CANCELLED')">
+
+          @for (task of cancelledTasks; track task.id) {
+
+            <div class="kanban-card" cdkDrag [cdkDragData]="task" [routerLink]="['/tasks', task.id]">
+
+              <span class="task-key">{{ task.taskKey }}</span>
+
+
+              <h4>{{ task.title }}</h4>
+              <p>
+                Priority:
+                {{ task.priority | taskPriorityLabel }}
+              </p>
+
+              <p>
+                Due:
+                {{ task.dueDate }}
+              </p>
+              @if (task.labels.length > 0) {
+                <div class="kanban-labels">
+                  @for (label of task.labels; track label.id) {
+                    <span class="kanban-label">{{ label.name }}</span>
+                  }
+                </div>
+              }
+            </div>
+
+          } @empty {
+            <p class="empty-column">
+              No tasks
+            </p>
+          }
+        </div>
+      </div>
+    </div>
+
+  }
 </div>
 
 @if (showCreateForm) {

@@ -1,5 +1,6 @@
 package com.planio.app.dto;
 
+import com.planio.app.entity.TaskPriority;
 import com.planio.app.entity.TaskStatus;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
@@ -7,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class TaskDTO {
@@ -27,4 +29,10 @@ public class TaskDTO {
     private Long boardId;
 
     private Long assignedUserId;
+
+    private TaskPriority priority;
+
+    private List<LabelDTO> labels;
+
+    private String taskKey;
 }
