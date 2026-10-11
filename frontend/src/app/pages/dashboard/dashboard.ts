@@ -3,7 +3,6 @@ import { BoardService } from '../../services/board';
 import { Board as BoardModel } from '../../models/board';
 import { ChangeDetectorRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { FormsModule} from '@angular/forms';
 import {Task} from '../../models/task';
 import {TaskService} from '../../services/task';
 import {DatePipe} from '@angular/common';
@@ -12,7 +11,7 @@ import { TaskDeadlinePipe } from '../../pipes/task-deadline-pipe';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, FormsModule, DatePipe, TaskStatusLabelPipe, TaskDeadlinePipe],
+  imports: [RouterLink, DatePipe, TaskStatusLabelPipe, TaskDeadlinePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -25,13 +24,15 @@ export class Dashboard implements OnInit {
   doneCount = 0;
   cancelledCount = 0;
 
-  deleteBoardId: number | null = null;
-  deleteBoardName = '';
-  deleteConfirmation = '';
+  boardsLoading = false;
+  tasksLoading = false;
+
+  boardsError = '';
+  tasksError = '';
 
   constructor(
     private boardService: BoardService,
-    private cdr: ChangeDetectorRef,
+    private changeDetectorRef: ChangeDetectorRef,
     private taskService: TaskService,
   ) {}
 
@@ -41,30 +42,41 @@ export class Dashboard implements OnInit {
   }
 
   loadBoards(): void {
-    console.log('Loading boards...');
+    this.boardsLoading = true;
+    this.boardsError = '';
 
     this.boardService.getMyBoards().subscribe({
       next: (boards) => {
         this.boards = boards;
-        this.cdr.detectChanges();
-        console.log('Boards received:', boards);
+        this.boardsLoading = false;
+        this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
         console.error('Failed to load boards:', error);
-      },
+        this.boardsError = 'Failed to load boards.';
+        this.boardsLoading = false;
+        this.changeDetectorRef.detectChanges();
+      }
     });
   }
 
   loadTasks(): void {
+    this.tasksLoading = true;
+    this.tasksError = '';
+
     this.taskService.getMyTasks().subscribe({
       next: (tasks) => {
         this.tasks = tasks;
         this.calculateStatistics();
-        this.cdr.detectChanges();
+        this.tasksLoading = false;
+        this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
         console.error('Failed to load tasks:', error);
-      },
+        this.tasksError = 'Failed to load tasks.';
+        this.tasksLoading = false;
+        this.changeDetectorRef.detectChanges();
+      }
     });
   }
 
@@ -93,59 +105,37 @@ export class Dashboard implements OnInit {
     }
   }
 
+  private getTodayDate(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
+
   get upcomingTasks(): Task[] {
-    const currentTime = new Date().getTime();
+    const today = this.getTodayDate();
 
     return this.tasks
       .filter(task =>
+        task.dueDate !== null &&
+        task.dueDate >= today &&
         task.status !== 'DONE' &&
-        task.status !== 'CANCELLED' &&
-        new Date(task.dueDate).getTime() >= currentTime
-      )
-      .sort((a, b) => {
-        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-      })
-      .slice(0, 5);
+        task.status !== 'CANCELLED'
+      ).sort((a, b) => (a.dueDate ?? '').localeCompare(b.dueDate ?? '')).slice(0, 5);
   }
 
   get overdueTasks(): Task[] {
-    const currentTime = new Date().getTime();
+    const today = this.getTodayDate();
 
     return this.tasks
       .filter(task =>
+        task.dueDate !== null &&
+        task.dueDate < today &&
         task.status !== 'DONE' &&
-        task.status !== 'CANCELLED' &&
-        new Date(task.dueDate).getTime() < currentTime
-      )
-      .sort((a, b) => {
-        return new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime();
-      });
+        task.status !== 'CANCELLED'
+      ).sort((a, b) => (b.dueDate ?? '').localeCompare(a.dueDate ?? ''));
   }
 
-  confirmDeleteBoard(board: BoardModel): void {
-    this.deleteBoardId = board.id;
-    this.deleteBoardName = board.name;
-    this.deleteConfirmation = '';
-  }
-
-  deleteBoard(): void {
-    if (this.deleteBoardId === null || this.deleteConfirmation !== this.deleteBoardName) {
-      return;
-    }
-
-    this.boardService.delete(this.deleteBoardId).subscribe({
-      next: () => {
-        this.boards = this.boards.filter((board) => board.id !== this.deleteBoardId);
-
-        this.deleteBoardId = null;
-        this.deleteBoardName = '';
-        this.deleteConfirmation = '';
-
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Failed to delete board:', error);
-      },
-    });
-  }
 }

@@ -33,6 +33,11 @@
       <p>{{ doneCount }}</p>
     </div>
 
+    <div class="stat-card">
+      <h3>Cancelled</h3>
+      <p>{{ cancelledCount }}</p>
+    </div>
+
   </section>
 
   <section class="tasks-section">
@@ -41,10 +46,18 @@
       <h2>My Tasks</h2>
     </div>
 
-    @if (tasks.length === 0) {
-
-      <p>No tasks assigned to you.</p>
-
+    @if (tasksLoading) {
+      <p>
+        Loading tasks...
+      </p>
+    } @else if (tasksError) {
+      <p class="error-message">
+        {{ tasksError }}
+      </p>
+    } @else if (tasks.length === 0) {
+      <p>
+        No tasks assigned to you.
+      </p>
     } @else {
 
       <div class="tasks">
@@ -54,6 +67,7 @@
           <div class="task">
 
             <div class="task-info">
+              <span>{{ task.taskKey }}</span>
               <h3>{{ task.title }}</h3>
               <p>{{ task.description }}</p>
             </div>
@@ -100,7 +114,7 @@
           <div class="deadline">
 
             <div>
-              <strong>{{ task.title }}</strong>
+              <strong>{{ task.taskKey }} — {{ task.title }}</strong>
               <p>{{ task.status | taskStatusLabel }}</p>
             </div>
 
@@ -127,7 +141,7 @@
         @for (task of overdueTasks; track task.id) {
           <div class="deadline">
             <div>
-              <strong>{{ task.title }}</strong>
+              <strong>{{ task.taskKey }} — {{ task.title }}</strong>
 
               <p>
                 {{ task.status | taskStatusLabel }}
@@ -154,10 +168,18 @@
 
     <h2>My Boards</h2>
 
-    @if (boards.length === 0) {
-
-      <p>No boards yet.</p>
-
+    @if (boardsLoading) {
+      <p>
+        Loading boards...
+      </p>
+    } @else if (boardsError) {
+      <p class="error-message">
+        {{ boardsError }}
+      </p>
+    } @else if (boards.length === 0) {
+      <p>
+        No boards yet.
+      </p>
     } @else {
 
       <div class="boards">
@@ -171,44 +193,10 @@
               Open
             </button>
 
-            <button type="button" [routerLink]="['/boards/', board.id, 'settings']">
-              Edit
-            </button>
-
           </div>
         }
       </div>
     }
   </section>
 
-  @if (deleteBoardId !== null) {
-    <div class="delete-modal">
-      <div class="delete-modal-content">
-        <h2>Delete Board</h2>
-
-        <p>
-          Are you sure you want to delete
-          <strong>{{ deleteBoardName }}</strong>?
-        </p>
-
-        <p>
-          Type <strong>{{ deleteBoardName }}</strong> to confirm.
-        </p>
-
-        <input type="text" [(ngModel)]="deleteConfirmation" placeholder="Board name">
-
-        <div class="delete-modal-actions">
-
-          <button type="button" (click)="deleteBoardId = null">
-            Cancel
-          </button>
-
-          <button type="button" (click)="deleteBoard()" [disabled]="deleteConfirmation !== deleteBoardName">
-            Confirm
-          </button>
-
-        </div>
-      </div>
-    </div>
-  }
 </div>

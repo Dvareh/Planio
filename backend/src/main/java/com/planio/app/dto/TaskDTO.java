@@ -5,6 +5,7 @@ import com.planio.app.entity.TaskStatus;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -16,8 +17,10 @@ public class TaskDTO {
     private Long id;
 
     @NotBlank(message = "Title cannot be empty")
+    @Size(max = 255, message = "Title cannot exceed 255 characters")
     private String title;
 
+    @Size(max = 255, message = "Description cannot exceed 255 characters")
     private String description;
 
     @NotNull(message = "Due date is required")
@@ -26,6 +29,7 @@ public class TaskDTO {
 
     private TaskStatus status;
 
+    @NotNull(message = "Board is required")
     private Long boardId;
 
     private Long assignedUserId;

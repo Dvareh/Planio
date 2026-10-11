@@ -3,21 +3,6 @@
   margin: 0 auto;
 }
 
-.settings-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.settings-header h1 {
-  margin-bottom: 4px;
-}
-
-.settings-header p {
-  margin-top: 0;
-}
-
 .settings-section,
 .danger-section {
   padding: 20px;
@@ -137,4 +122,22 @@
 
   border: 1px solid #ddd;
   border-radius: 6px;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 20px;
+
+  font-size: 14px;
+}
+
+.breadcrumbs a {
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  text-decoration: underline;
 }

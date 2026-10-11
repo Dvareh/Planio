@@ -54,12 +54,7 @@ export class BoardSettings implements OnInit {
 
   ngOnInit(): void {
     this.boardId = Number(this.route.snapshot.paramMap.get('id'));
-
-    this.auth.loadCurrentUser().subscribe({
-      next: () => {
-        this.loadBoard();
-      }
-    });
+    this.loadBoard();
   }
 
   loadBoard(): void {
@@ -187,35 +182,36 @@ export class BoardSettings implements OnInit {
     });
   }
 
-  removeParticipant(userId: number): void {
+  removeParticipant(participant: User): void {
+    const confirmed = confirm(`Are you sure you want to remove participant '${participant.username}'? This action cannot be undone.`);
+
+    if (!confirmed) {
+      return;
+    }
+
     this.participantMessage = '';
     this.participantError = '';
 
-    this.boardService.removeParticipant(
-      this.boardId,
-      userId
-    ).subscribe({
-      next: () => {
-        this.participantMessage = 'Participant removed successfully.';
-
-        this.loadParticipants();
-
-        this.changeDetectorRef.detectChanges();
-      },
-      error: (error) => {
-        console.error('Failed to remove participant', error);
-
-        this.participantError = 'Failed to remove participant.';
-
-        this.changeDetectorRef.detectChanges();
-      }
-    });
+    this.boardService.removeParticipant(this.boardId, participant.id).subscribe({
+        next: () => {
+          this.participantMessage = 'Participant removed successfully.';
+          this.loadParticipants();
+          this.changeDetectorRef.detectChanges();
+        },
+        error: (error) => {
+          console.error('Failed to remove participant', error);
+          this.participantError = 'Failed to remove participant.';
+          this.changeDetectorRef.detectChanges();
+        }
+      });
   }
 
   deleteBoard(): void {
-    const confirmed = confirm(
-      'Are you sure you want to delete this board? This action cannot be undone.'
-    );
+    if (this.isDeleting) {
+      return;
+    }
+
+    const confirmed = confirm('Are you sure you want to delete this board? This action cannot be undone.');
 
     if (!confirmed) {
       return;
@@ -275,11 +271,9 @@ export class BoardSettings implements OnInit {
     });
   }
 
-  deleteLabel(labelId: number): void {
+  deleteLabel(label: Label): void {
 
-    const confirmed = confirm(
-      'Are you sure you want to delete this label?'
-    );
+    const confirmed = confirm(`Are you sure you want to delete label '${label.name}'?`);
 
     if (!confirmed) {
       return;
@@ -288,7 +282,7 @@ export class BoardSettings implements OnInit {
     this.labelMessage = '';
     this.labelError = '';
 
-    this.labelService.deleteLabel(this.boardId, labelId).subscribe({
+    this.labelService.deleteLabel(this.boardId, label.id).subscribe({
       next: () => {
 
         this.labelMessage = 'Label deleted successfully.';
@@ -299,9 +293,7 @@ export class BoardSettings implements OnInit {
       },
       error: (error) => {
         console.error('Failed to delete label', error);
-
-        this.labelError =
-          'Failed to delete label.';
+        this.labelError = 'Failed to delete label.';
 
         this.changeDetectorRef.detectChanges();
       }

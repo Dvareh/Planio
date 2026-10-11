@@ -1,5 +1,5 @@
 import { TaskStatus } from './task-status';
-export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+import { TaskPriority } from './task';
 
 export interface CreateTask {
   title: string;

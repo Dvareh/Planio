@@ -7,7 +7,7 @@ export interface Task {
   id: number;
   title: string;
   description: string;
-  dueDate: string;
+  dueDate: string | null;
   status: TaskStatus;
   boardId: number;
   assignedUserId: number | null;

@@ -7,22 +7,17 @@ import { TaskStatus } from '../models/task-status';
 })
 export class TaskDeadlinePipe implements PipeTransform {
 
-  transform(dueDate: string, status: TaskStatus): string {
-    if (status === 'DONE' || status === 'CANCELLED') {
+  transform(dueDate: string | null, status: TaskStatus): string {
+    if (!dueDate || status === 'DONE' || status === 'CANCELLED') {
       return '';
     }
 
-    if (!dueDate) {
-      return '';
-    }
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const today = `${year}-${month}-${day}`;
 
-    const dueDateTime = new Date(dueDate).getTime();
-    const currentTime = new Date().getTime();
-
-    if (dueDateTime < currentTime) {
-      return 'Overdue';
-    }
-
-    return '';
+    return dueDate < today ? 'Overdue' : '';
   }
 }

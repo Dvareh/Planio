@@ -1,4 +1,16 @@
 <div class="profile">
+  <nav class="breadcrumbs">
+
+    <a routerLink="/dashboard">
+      Dashboard
+    </a>
+
+    <span>›</span>
+
+    <span>
+    Profile
+    </span>
+  </nav>
 
   <div class="profile-header">
     <h1>Profile</h1>
@@ -46,10 +58,12 @@
             <span class="info-value">{{ email }}</span>
           </div>
 
-          <div class="info-row">
-            <span class="info-label">Role</span>
-            <span class="info-value">{{ role }}</span>
-          </div>
+          @if (role == 'ADMIN'){
+            <div class="info-row">
+              <span class="info-label">Role</span>
+              <span class="info-value">{{ role }}</span>
+            </div>
+          }
 
         </div>
 
@@ -71,12 +85,6 @@
           <label for="email">Email</label>
 
           <input id="email" type="email" [(ngModel)]="email" placeholder="Enter email">
-        </div>
-
-        <div class="form-group">
-          <label for="role">Role</label>
-
-          <input id="role" type="text" [value]="role" disabled>
         </div>
 
         @if (errorMessage) {

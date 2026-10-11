@@ -3,6 +3,7 @@ import { NotificationService } from '../../services/notification';
 import { Notification as NotificationModel } from '../../models/notification';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-notifications',
@@ -16,9 +17,12 @@ export class Notifications implements OnInit {
   isLoading = true;
   errorMessage = '';
 
+  actionError = '';
+
   constructor(
     private notificationService: NotificationService,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -52,36 +56,37 @@ export class Notifications implements OnInit {
       return;
     }
 
+    this.actionError = '';
+
     this.notificationService.markAsRead(notification.id).subscribe({
-      next: () => {
-        notification.read = true;
-
-        this.notificationService.notifyNotificationsChanged();
-
-        this.changeDetectorRef.detectChanges();
-      },
-      error: (error) => {
-        console.error('Failed to mark notification as read:', error);
-      }
-    });
+        next: () => {
+          notification.read = true;
+          this.changeDetectorRef.detectChanges();
+        },
+        error: (error) => {
+          console.error('Failed to mark notification as read', error);
+          this.actionError = 'Failed to mark notification as read.';
+          this.changeDetectorRef.detectChanges();
+        }
+      });
   }
 
   markAllAsRead(): void {
+    this.actionError = '';
+
     this.notificationService.markAllAsRead().subscribe({
-      next: () => {
-        for (const notification of this.notifications) {
-          notification.read = true;
+        next: () => {
+          for (const notification of this.notifications) {
+            notification.read = true;
+          }
+          this.changeDetectorRef.detectChanges();
+        },
+        error: (error) => {
+          console.error('Failed to mark all notifications as read', error);
+          this.actionError = 'Failed to mark all notifications as read. Please try again.';
+          this.changeDetectorRef.detectChanges();
         }
-
-        this.notificationService.notifyNotificationsChanged();
-
-        this.changeDetectorRef.detectChanges();
-
-      },
-      error: (error) => {
-        console.error('Failed to mark all notifications as read:', error);
-      }
-    });
+      });
   }
 
   get unreadCount(): number {
@@ -101,4 +106,32 @@ export class Notifications implements OnInit {
 
     return `Notification for task "${notification.taskTitle}".`;
   }
+
+  openTask(notification: NotificationModel): void {
+    this.actionError = '';
+
+    if (!notification.taskId) {
+      return;
+    }
+
+    if (notification.read) {
+      this.router.navigate(['/tasks', notification.taskId]);
+      return;
+    }
+
+    this.notificationService.markAsRead(notification.id).subscribe({
+      next: () => {
+        notification.read = true;
+        this.changeDetectorRef.detectChanges();
+        this.router.navigate(['/tasks', notification.taskId]);
+      },
+      error: (error) => {
+        console.error('Failed to mark notification as read', error);
+        this.actionError = 'Failed to open task.';
+        this.changeDetectorRef.detectChanges();
+      },
+    });
+  }
+
+
 }

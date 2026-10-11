@@ -31,7 +31,7 @@ public class JWTService {
 
     public String generateToken(User user) {
         return Jwts.builder()
-                .subject(user.getEmail())
+                .subject(user.getId().toString())
                 .claim("role", user.getRole().name())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
@@ -39,16 +39,8 @@ public class JWTService {
                 .compact();
     }
 
-    public String extractEmail(String token) {
-        return extractClaims(token).getSubject();
-    }
-
-    public boolean isValid(String token, String email) {
-        return extractEmail(token).equals(email) && !isExpired(token);
-    }
-
-    private boolean isExpired(String token) {
-        return extractClaims(token).getExpiration().before(new Date());
+    public Long extractUserId(String token) {
+        return Long.valueOf(extractClaims(token).getSubject());
     }
 
     private Claims extractClaims(String token) {

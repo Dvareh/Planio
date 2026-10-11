@@ -16,27 +16,21 @@ public class AdminService {
 
     public void updateRole(Long userId, Roles newRole) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow();
+        User user = userRepository.findById(userId).orElseThrow();
 
         User currentUser = currentUserService.getCurrentUser();
 
-        if(currentUser.getId().equals(user.getId())
-                && newRole == Roles.USER) {
+        if(currentUser.getId().equals(user.getId()) && newRole == Roles.USER) {
 
-            throw new AccessDeniedException(
-                    "You cannot remove your own admin role"
-            );
+            throw new AccessDeniedException("You cannot remove your own admin role");
         }
 
-        if (user.getRole() == Roles.ADMIN
-                && newRole == Roles.USER) {
+        if (user.getRole() == Roles.ADMIN && newRole == Roles.USER) {
 
             long admins = userRepository.countByRole(Roles.ADMIN);
 
             if (admins <= 1) {
-                throw new AccessDeniedException(
-                        "Cannot remove the last admin");
+                throw new AccessDeniedException("Cannot remove the last admin");
             }
         }
 
