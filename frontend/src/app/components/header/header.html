@@ -1,25 +1,21 @@
 <header class="header">
-  <h1>Planio</h1>
 
-  @if (currentUser) {
-    <div>
-      <span>{{ currentUser.name }}</span>
+  <a class="logo" routerLink="/dashboard">
+    Planio
+  </a>
 
-      <button type="button" (click)="openProfile()">
-        Profile
-      </button>
+  <div class="header-actions">
+    <a routerLink="/notifications">
+      Notifications
+    </a>
 
-      <button type="button" (click)="openNotifications()">
-        Notifications
+    <a routerLink="/profile">
+      Profile
+    </a>
 
-        @if (unreadNotifications > 0) {
-          <span>
-             : {{ unreadNotifications }}
-          </span>
-        }
-      </button>
-    </div>
-  }
+    <button type="button" (click)="logout()">
+      Logout
+    </button>
+  </div>
 
-  <button type="button" (click)="logout()">Logout</button>
 </header>

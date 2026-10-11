@@ -14,10 +14,6 @@ import java.util.Optional;
 
 @Repository
 public interface BoardRepository extends JpaRepository<Board,Long> {
-    public List<Board> findByOwner(User owner);
-
-    public List<Board> findByParticipants_Id(Long id);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
     SELECT b
@@ -27,4 +23,11 @@ public interface BoardRepository extends JpaRepository<Board,Long> {
     Optional<Board> findByIdForUpdate(
             @Param("id") Long id
     );
+
+    @Query("""
+    SELECT b FROM Board b
+    WHERE b.owner = :user
+       OR :user MEMBER OF b.participants
+    """)
+    List<Board> findAccessibleBoards(@Param("user") User user);
 }

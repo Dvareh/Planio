@@ -3,4 +3,5 @@ export interface Comment {
   text: string;
   taskId: number;
   userId: number;
+  username: string;
 }

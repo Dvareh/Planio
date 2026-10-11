@@ -31,7 +31,6 @@ export class CreateBoardPage {
 
     this.boardService.create(board).subscribe({
       next: (board) => {
-        console.log('Board created:', board);
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {

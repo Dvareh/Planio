@@ -2,6 +2,7 @@ package com.planio.app.controllers;
 
 
 import com.planio.app.dto.TaskDTO;
+import com.planio.app.dto.UpdateTaskDTO;
 import com.planio.app.entity.TaskPriority;
 import com.planio.app.entity.TaskStatus;
 import com.planio.app.services.TaskService;
@@ -93,8 +94,8 @@ public class TaskController {
 
     @Operation(summary = "Update task")
     @PutMapping("/{id}")
-    public TaskDTO update(@PathVariable Long id, @RequestBody @Valid TaskDTO taskDTO) {
-        return taskService.update(id, taskDTO);
+    public TaskDTO update(@PathVariable Long id, @RequestBody @Valid UpdateTaskDTO updateTaskDTO) {
+        return taskService.update(id, updateTaskDTO);
     }
 
     @Operation(summary = "Delete task")
@@ -136,5 +137,11 @@ public class TaskController {
     @PutMapping("/{taskId}/status")
     public TaskDTO updateStatus(@PathVariable Long taskId, @RequestParam TaskStatus status) {
         return taskService.updateStatus(taskId, status);
+    }
+
+    @Operation(summary = "Update task priority")
+    @PutMapping("/{taskId}/priority")
+    public TaskDTO updatePriority(@PathVariable Long taskId, @RequestParam TaskPriority priority) {
+        return taskService.updatePriority(taskId, priority);
     }
 }

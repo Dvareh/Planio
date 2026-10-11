@@ -8,10 +8,12 @@ import com.planio.app.entity.User;
 import com.planio.app.exceptions.ObjectNotFoundException;
 import com.planio.app.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,10 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthDTO register(RegisterDTO registerDTO) {
+
+        if (userRepository.existsByEmail(registerDTO.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
+        }
 
         User user = User.builder()
                 .username(registerDTO.getUsername())

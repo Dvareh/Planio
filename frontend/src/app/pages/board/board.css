@@ -62,7 +62,6 @@
 .task-filters {
   margin: 24px 0;
   padding: 16px;
-
   border: 1px solid #ddd;
   border-radius: 8px;
 }
@@ -75,7 +74,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-
   margin-bottom: 16px;
 }
 
@@ -83,7 +81,6 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-
   min-width: 180px;
 }
 
@@ -97,32 +94,23 @@
   gap: 10px;
 }
 
-.view-switch {
-  display: flex;
-  gap: 8px;
-  margin: 20px 0;
-}
-
-.view-switch button.active {
-  font-weight: 600;
-}
 
 .kanban-board {
   display: grid;
   grid-template-columns: repeat(4, minmax(240px, 1fr));
   gap: 16px;
-
   overflow-x: auto;
   padding-bottom: 16px;
 }
 
 .kanban-column {
   min-width: 240px;
-
+  min-height: 500px;
   padding: 12px;
-
   border: 1px solid #ddd;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
 }
 
 .kanban-column-header {
@@ -141,14 +129,15 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex: 1;
+  min-height: 400px;
+  padding-bottom: 40px;
 }
 
 .kanban-card {
   padding: 12px;
-
   border: 1px solid #ddd;
   border-radius: 6px;
-
   cursor: pointer;
 }
 
@@ -165,16 +154,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-
   margin-top: 10px;
 }
 
 .kanban-label {
   padding: 3px 7px;
-
   border: 1px solid #ccc;
   border-radius: 12px;
-
   font-size: 11px;
 }
 
