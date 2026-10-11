@@ -2,6 +2,7 @@ package com.planio.app.controllers;
 
 import com.planio.app.dto.UserDTO;
 import com.planio.app.entity.Roles;
+import com.planio.app.services.AdminService;
 import com.planio.app.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,31 +20,19 @@ import java.util.List;
 public class AdminController {
 
     private final UserService userService;
+    private final AdminService adminService;
 
     @Operation(summary = "Get all users")
     @GetMapping("/users")
     public List<UserDTO> getAllUsers() {
-
         return userService.getAll();
-    }
-
-    @Operation(summary = "Delete user")
-    @DeleteMapping("/users/{id}")
-    public void deleteUser(
-            @PathVariable Long id
-    ) {
-
-        userService.delete(id);
     }
 
     @Operation(summary = "Change user role")
     @PutMapping("/users/{id}/role")
-    public UserDTO changeRole(
-            @PathVariable Long id,
-            @RequestParam Roles role
+    public void changeRole(@PathVariable Long id, @RequestParam Roles role
     ) {
-
-        return userService.changeRole(id, role);
+        adminService.updateRole(id, role);
     }
 
 }

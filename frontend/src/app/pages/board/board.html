@@ -1,0 +1,260 @@
+<div class="board-page">
+
+  <nav class="breadcrumbs">
+    <a routerLink="/dashboard">
+      Dashboard
+    </a>
+    <span>›</span>
+
+    @if (board) {
+      <span>
+        {{ board.name }}
+      </span>
+    }
+
+  </nav>
+
+  <h1>{{ board?.name }}</h1>
+
+  @if (board?.description) {
+    <p class="board-description">
+      {{ board?.description }}
+    </p>
+  }
+
+  @if (isOwner()) {
+    <button type="button" routerLink="/boards/{{ boardId }}/settings">
+      Board Settings
+    </button>
+  }
+
+  <h2>Tasks</h2>
+
+  <button type="button" (click)="showCreateForm = true">
+    Add Task
+  </button>
+
+  <div class="participants">
+    <h2>Members</h2>
+
+    @for (participant of participants; track participant.id) {
+      <div class="participant">
+        <div>
+          <strong>
+            {{ participant.username }}
+          </strong>
+          <p>
+            {{ participant.email }}
+          </p>
+        </div>
+
+        @if (board?.ownerId === participant.id) {
+          <span>
+            Owner
+          </span>
+        } @else {
+          <span>
+            Member
+          </span>
+        }
+      </div>
+    } @empty {
+      <p>
+        No members yet.
+      </p>
+    }
+  </div>
+
+  <div class="task-filters">
+
+    <h2>Filters</h2>
+
+
+    <div class="filter-row">
+      <label>
+        Search
+        <input type="text" placeholder="Search by title" [(ngModel)]="search">
+      </label>
+
+      <label>
+        Status
+        <select [(ngModel)]="selectedStatus">
+          <option value="">
+            All statuses
+          </option>
+          <option value="TODO">
+            To Do
+          </option>
+          <option value="IN_PROGRESS">
+            In Progress
+          </option>
+          <option value="DONE">
+            Done
+          </option>
+          <option value="CANCELLED">
+            Cancelled
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Priority
+        <select [(ngModel)]="selectedPriority">
+          <option value="">
+            All priorities
+          </option>
+          <option value="LOW">
+            Low
+          </option>
+          <option value="MEDIUM">
+            Medium
+          </option>
+          <option value="HIGH">
+            High
+          </option>
+          <option value="URGENT">
+            Urgent
+          </option>
+        </select>
+      </label>
+
+    </div>
+    <div class="filter-row">
+      <label>
+        Assigned User
+        <select [(ngModel)]="selectedAssignedUserId">
+          <option [ngValue]="null">
+            All users
+          </option>
+          @for (user of participants; track user.id) {
+            <option [ngValue]="user.id">
+              {{ user.username }}
+            </option>
+
+          }
+        </select>
+      </label>
+
+      <label>
+        Label
+        <select [(ngModel)]="selectedLabelId">
+          <option [ngValue]="null">
+            All labels
+          </option>
+          @for (label of labels; track label.id) {
+            <option [ngValue]="label.id">
+              {{ label.name }}
+            </option>
+          }
+        </select>
+      </label>
+
+    </div>
+    <div class="filter-row">
+      <label>
+        Due From
+        <input type="date" [(ngModel)]="dueDateFrom">
+      </label>
+      <label>
+        Due To
+        <input type="date" [(ngModel)]="dueDateTo">
+      </label>
+    </div>
+
+    <div class="filter-row">
+      <label>
+        Sort by
+        <select [(ngModel)]="sortBy">
+          <option value="dueDate">Due date</option>
+          <option value="title">Title</option>
+        </select>
+      </label>
+
+      <label>
+        Direction
+        <select [(ngModel)]="direction">
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="filter-actions">
+      <button type="button" (click)="applyFilters()">
+        Apply Filters
+      </button>
+      <button type="button" (click)="clearFilters()">
+        Clear
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="kanban-board" cdkDropListGroup>
+    @for (column of columns; track column.status) {
+      <div class="kanban-column">
+        <div class="kanban-column-header">
+          <h3>{{ column.title }}</h3>
+          @if (column.tasks.length != 1) {
+            <span>{{ column.tasks.length }} tasks</span>
+          } @else {
+            <span>{{ column.tasks.length }} task</span>
+          }
+
+
+        </div>
+
+        <div class="kanban-tasks" cdkDropList [cdkDropListData]="column.tasks" [cdkDropListSortingDisabled]="true" (cdkDropListDropped)="dropTask($event, column.status)">
+          @for (task of column.tasks; track task.id) {
+            <div class="kanban-card" cdkDrag [cdkDragData]="task" [routerLink]="['/tasks', task.id]">
+              <span class="task-key">{{ task.taskKey }}</span>
+              <h4>{{ task.title }}</h4>
+
+              <p>Priority: {{ task.priority | taskPriorityLabel }}</p>
+              <p>Due: {{ task.dueDate }}</p>
+
+              @if (task.labels.length > 0) {
+                <div class="kanban-labels">
+                  @for (label of task.labels; track label.id) {
+                    <span class="kanban-label">{{ label.name }}</span>
+                  }
+                </div>
+              }
+            </div>
+          } @empty {
+            <p class="empty-column">
+              No tasks
+            </p>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <p>Loaded {{ tasks.length }} of {{ totalElements }} tasks</p>
+
+  @if (taskLoadError) {
+    <p class="error">{{ taskLoadError }}</p>
+  }
+
+  @if (isLoadingTasks) {
+    <p>Loading tasks...</p>
+  }
+
+  @if (nextPage < totalPages || taskLoadError) {
+    <button type="button" (click)="loadMoreTasks()" [disabled]="isLoadingTasks">
+      {{ taskLoadError ? 'Try again' : 'Load more' }}
+    </button>
+  }
+</div>
+
+
+@if (showCreateForm) {
+  <app-create-task-modal
+    [boardId]="boardId"
+    (close)="showCreateForm = false"
+    (taskCreated)="onTaskCreated()"
+  />
+}
+

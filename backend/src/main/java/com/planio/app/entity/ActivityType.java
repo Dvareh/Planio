@@ -1,0 +1,19 @@
+package com.planio.app.entity;
+
+public enum ActivityType {
+    TASK_CREATED,
+    STATUS_CHANGED,
+    PRIORITY_CHANGED,
+    DUE_DATE_CHANGED,
+    ASSIGNEE_CHANGED,
+
+    LABEL_ADDED,
+    LABEL_REMOVED,
+
+    COMMENT_ADDED,
+    COMMENT_UPDATED,
+    COMMENT_DELETED,
+
+    TITLE_CHANGED,
+    DESCRIPTION_CHANGED,
+}

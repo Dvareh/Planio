@@ -26,7 +26,7 @@ public class UserController {
     @Operation(summary = "Update current user")
     @PutMapping("/me")
     public UserDTO updateMe(
-            @RequestBody UserDTO userDTO)
+            @Valid @RequestBody UserDTO userDTO)
     {
         return userService.updateCurrentUser(userDTO);
     }
@@ -39,7 +39,7 @@ public class UserController {
 
     @Operation(summary = "Change password")
     @PutMapping("/change-password")
-    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+    public ResponseEntity<String> changePassword(@RequestBody @Valid ChangePasswordDTO changePasswordDTO) {
         userService.changePassword(changePasswordDTO);
 
         return ResponseEntity.ok("Password changed successfully");
