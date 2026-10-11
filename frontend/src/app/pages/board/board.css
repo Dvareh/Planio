@@ -1,0 +1,193 @@
+.participants {
+  margin: 24px 0;
+}
+
+.add-member {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.add-member input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.participant {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.participant p {
+  margin: 4px 0 0;
+}
+
+.participant button {
+  padding: 8px 12px;
+}
+
+.success {
+  margin: 10px 0;
+}
+
+.error {
+  margin: 10px 0;
+}
+
+.board-description {
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+
+.task-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.task-label {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 14px;
+  font-size: 12px;
+}
+
+.task-filters {
+  margin: 24px 0;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.task-filters h2 {
+  margin-top: 0;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.filter-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.filter-row input,
+.filter-row select {
+  padding: 8px;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 10px;
+}
+
+
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(240px, 1fr));
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+}
+
+.kanban-column {
+  min-width: 240px;
+  min-height: 500px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.kanban-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 12px;
+}
+
+.kanban-column-header h3 {
+  margin: 0;
+}
+
+.kanban-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 400px;
+  padding-bottom: 40px;
+}
+
+.kanban-card {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.kanban-card h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.kanban-card p {
+  margin: 6px 0;
+}
+
+.kanban-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.kanban-label {
+  padding: 3px 7px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  font-size: 11px;
+}
+
+.empty-column {
+  margin: 0;
+}
+
+.kanban-card.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 200ms ease;
+}
+
+.kanban-tasks {
+  min-height: 100px;
+}
+
+.task-key {
+  font-size: 12px;
+  font-weight: 600;
+}

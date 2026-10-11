@@ -1,6 +1,7 @@
 package com.planio.app.controllers;
 
 import com.planio.app.dto.BoardDTO;
+import com.planio.app.dto.UserDTO;
 import com.planio.app.entity.User;
 import com.planio.app.repositories.BoardRepository;
 import com.planio.app.services.BoardService;
@@ -34,12 +35,6 @@ public class BoardController {
         return boardService.getBoardById(id);
     }
 
-    @Operation(summary = "Get all boards")
-    @GetMapping
-    public List<BoardDTO> getAll() {
-        return boardService.getAllBoards();
-    }
-
     @Operation(summary = "Update board")
     @PutMapping("/{id}")
     public BoardDTO update(@PathVariable Long id,
@@ -64,5 +59,20 @@ public class BoardController {
     @GetMapping("/my")
     public List<BoardDTO> getMyBoards() {
         return boardService.getMyBoards();
+    }
+
+    @Operation(summary = "Get board participants")
+    @GetMapping("/{boardId}/participants")
+    public List<UserDTO> getParticipants(@PathVariable Long boardId) {
+        return boardService.getParticipants(boardId);
+    }
+
+    @Operation(summary = "Remove participant")
+    @DeleteMapping("/{boardId}/participants/{userId}")
+    public void removeParticipant(
+            @PathVariable Long boardId,
+            @PathVariable Long userId) {
+
+        boardService.removeParticipant(boardId, userId);
     }
 }

@@ -8,14 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class BoardAccessService {
     public void checkAccess(Board board, User user) {
-
-        boolean isOwner = board.getOwner().getId().equals(user.getId());
-
-        boolean isParticipant = board.getParticipants()
-                .stream()
-                .anyMatch(u -> u.getId().equals(user.getId()));
-
-        if (!isOwner && !isParticipant) {
+        if (!hasAccess(board, user)) {
             throw new AccessDeniedException("No access to this board");
         }
     }
@@ -24,5 +17,14 @@ public class BoardAccessService {
         return board.getOwner().getId().equals(user.getId())
                 || board.getParticipants().stream()
                 .anyMatch(u -> u.getId().equals(user.getId()));
+    }
+
+    public void checkOwner(Board board, User user) {
+
+        boolean isOwner = board.getOwner().getId().equals(user.getId());
+
+        if (!isOwner) {
+            throw new AccessDeniedException("Only board owner can perform this action");
+        }
     }
 }

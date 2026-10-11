@@ -3,6 +3,7 @@ package com.planio.app.services;
 
 import com.planio.app.entity.Notification;
 import com.planio.app.entity.Task;
+import com.planio.app.entity.TaskStatus;
 import com.planio.app.repositories.NotificationRepository;
 import com.planio.app.repositories.TaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,35 +33,37 @@ public class TaskDeadlineSchedulerService {
     }
 
 
-    private void checkTasksForDays(int days){
-        LocalDate start = LocalDate.now()
-                .plusDays(days);
+    private void checkTasksForDays(int days) {
+        LocalDate dueDate = LocalDate.now().plusDays(days);
+        List<Task> tasks = taskRepository.findByDueDate(dueDate);
 
-        LocalDate end = start.plusDays(1);
+        log.info("Checking {} days ahead. Found tasks: {}", days, tasks.size());
 
-        List<Task> tasks = taskRepository.findByDueDateBetween(start, end);
-
-        log.info(
-                "Checking {} days ahead. Found tasks: {}",
-                days,
-                tasks.size()
-        );
-
-
-
-        for(Task task : tasks){
-            if(task.getAssignedUser() == null){
+        for (Task task : tasks) {
+            if (task.getAssignedUser() == null
+                    || task.getStatus() == TaskStatus.DONE
+                    || task.getStatus() == TaskStatus.CANCELLED) {
                 continue;
             }
-            if(days == 3 && !task.getReminder3DaysSent()){
-                send(task, days);
-                task.setReminder3DaysSent(true);
+
+            boolean shouldSend = (days == 3 && !Boolean.TRUE.equals(task.getReminder3DaysSent()))
+                    || (days == 1 && !Boolean.TRUE.equals(task.getReminder1DaySent()));
+
+            if (!shouldSend) {
+                continue;
             }
-            if(days == 1 && !task.getReminder1DaySent()){
+
+            try {
                 send(task, days);
-                task.setReminder1DaySent(true);
+                if (days == 3) {
+                    task.setReminder3DaysSent(true);
+                } else {
+                    task.setReminder1DaySent(true);
+                }
+                taskRepository.save(task);
+            } catch (RuntimeException e) {
+                log.error("Failed to send reminder for task {}", task.getId(), e);
             }
-            taskRepository.save(task);
         }
     }
 
@@ -76,6 +79,7 @@ public class TaskDeadlineSchedulerService {
                 .task(task)
                 .type(days + "_DAYS_BEFORE_DEADLINE")
                 .sentAt(LocalDateTime.now())
+                .read(false)
                 .build();
 
 
