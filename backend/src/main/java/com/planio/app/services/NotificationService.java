@@ -49,13 +49,10 @@ public class NotificationService {
         User user = currentUserService.getCurrentUser();
 
         Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() ->
-                        new ObjectNotFoundException("Notification", id));
+                .orElseThrow(() -> new ObjectNotFoundException("Notification", id));
 
         if (!notification.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException(
-                    "You can only update your own notifications"
-            );
+            throw new AccessDeniedException("You can only update your own notifications");
         }
 
         notification.setRead(true);
@@ -70,8 +67,7 @@ public class NotificationService {
 
         User user = currentUserService.getCurrentUser();
 
-        List<Notification> notifications =
-                notificationRepository.findByUserAndReadFalseOrderBySentAtDesc(user);
+        List<Notification> notifications = notificationRepository.findByUserAndReadFalseOrderBySentAtDesc(user);
 
         for (Notification notification : notifications) {
             notification.setRead(true);
@@ -79,24 +75,20 @@ public class NotificationService {
 
         notificationRepository.saveAll(notifications);
 
-        log.info(
-                "Marked {} notifications as read for user {}",
-                notifications.size(),
-                user.getId()
-        );
+        log.info("Marked {} notifications as read for user {}", notifications.size(), user.getId());
     }
 
     private NotificationDTO mapToDTO(Notification notification) {
 
-        NotificationDTO dto = new NotificationDTO();
+        NotificationDTO notificationDTO = new NotificationDTO();
 
-        dto.setId(notification.getId());
-        dto.setTaskId(notification.getTask().getId());
-        dto.setTaskTitle(notification.getTask().getTitle());
-        dto.setType(notification.getType());
-        dto.setSentAt(notification.getSentAt());
-        dto.setRead(notification.isRead());
+        notificationDTO.setId(notification.getId());
+        notificationDTO.setTaskId(notification.getTask().getId());
+        notificationDTO.setTaskTitle(notification.getTask().getTitle());
+        notificationDTO.setType(notification.getType());
+        notificationDTO.setSentAt(notification.getSentAt());
+        notificationDTO.setRead(notification.isRead());
 
-        return dto;
+        return notificationDTO;
     }
 }

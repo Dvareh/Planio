@@ -4,6 +4,7 @@ import com.planio.app.dto.AuthDTO;
 import com.planio.app.dto.LoginDTO;
 import com.planio.app.dto.RegisterDTO;
 import com.planio.app.services.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,12 +19,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public AuthDTO register(@RequestBody RegisterDTO registerDTO) {
+    public AuthDTO register(@Valid @RequestBody RegisterDTO registerDTO) {
         return authService.register(registerDTO);
     }
 
     @PostMapping("/login")
-    public AuthDTO login(@RequestBody LoginDTO loginDTO) {
+    public AuthDTO login(@Valid @RequestBody LoginDTO loginDTO) {
         return authService.login(loginDTO);
     }
 }

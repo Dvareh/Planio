@@ -9,10 +9,12 @@ import lombok.Data;
 public class RegisterDTO {
 
     @NotBlank
+    @Size(max = 255, message = "Username cannot exceed 255 characters")
     private String username;
 
     @Email
     @NotBlank
+    @Size(max = 255, message = "Email cannot exceed 255 characters")
     private String email;
 
     @NotBlank

@@ -14,48 +14,148 @@
     <div class="task-header">
       <div>
 
-        <button type="button" [routerLink]="['/boards', task.boardId]">
-          Back to Board
-        </button>
+        <nav class="breadcrumbs">
 
-        <p class="task-key">
-          {{ task.taskKey }}
-        </p>
+          <a routerLink="/dashboard">
+            Dashboard
+          </a>
 
-        <h1>
-          {{ task.title }}
-        </h1>
+          <span>›</span>
+          <a [routerLink]="['/boards',task.boardId]">
+            {{ board?.name }}
+          </a>
 
+          <span>›</span>
+
+          <span>
+    {{ task.taskKey }}
+  </span>
+
+        </nav>
+
+        @if (!editingTask) {
+
+          <div class="task-title-row">
+            <h1>
+              {{ task.title }}
+            </h1>
+
+            <button type="button" (click)="startEditingTask()" [disabled]="isDeleting">
+              Edit Task
+            </button>
+
+            <button type="button" (click)="deleteTask()" [disabled]="isDeleting">
+              @if (isDeleting) {
+                Deleting...
+              } @else {
+                Delete Task
+              }
+            </button>
+          </div>
+
+          @if (deleteErrorMessage) {
+            <p class="error-message" role="alert">
+              {{ deleteErrorMessage }}
+            </p>
+          }
+
+        } @else {
+
+          <div class="task-edit-form">
+
+            <label>
+              Title
+            </label>
+
+            <input type="text" [(ngModel)]="editTitle">
+
+            <label>
+              Description
+            </label>
+
+            <textarea [(ngModel)]="editDescription" rows="5"></textarea>
+
+            <label>
+              Due Date
+            </label>
+
+            <input type="date" [(ngModel)]="editDueDate">
+
+            @if (editErrorMessage) {
+              <p class="error-message">{{ editErrorMessage }}</p>
+            }
+
+            <div class="task-edit-actions">
+
+              <button type="button" (click)="saveTask()">
+                Save
+              </button>
+
+              <button type="button" (click)="cancelEditingTask()">
+                Cancel
+              </button>
+
+            </div>
+          </div>
+        }
       </div>
-
     </div>
-
 
     <div class="task-info-grid">
 
       <div class="task-info-item">
+
         <span>Status</span>
 
-        <strong>
-          {{ task.status | taskStatusLabel }}
-        </strong>
+        <select [(ngModel)]="task.status" (change)="changeStatus()">
+          <option value="TODO">
+            To Do
+          </option>
+
+          <option value="IN_PROGRESS">
+            In Progress
+          </option>
+
+          <option value="DONE">
+            Done
+          </option>
+
+          <option value="CANCELLED">
+            Cancelled
+          </option>
+        </select>
+
       </div>
 
 
       <div class="task-info-item">
         <span>Priority</span>
 
-        <strong>
-          {{ task.priority | taskPriorityLabel }}
-        </strong>
+        <select [(ngModel)]="task.priority" (change)="changePriority()">
+          <option value="LOW">
+            Low
+          </option>
+
+          <option value="MEDIUM">
+            Medium
+          </option>
+
+          <option value="HIGH">
+            High
+          </option>
+
+          <option value="URGENT">
+            Urgent
+          </option>
+        </select>
+
       </div>
 
 
       <div class="task-info-item">
         <span>Due Date</span>
-
         <strong>
-          {{ task.dueDate }}
+          {{ task.dueDate || 'No due date' }}
         </strong>
       </div>
 
@@ -70,26 +170,21 @@
 
     </div>
 
-    <section class="task-section">
+    @if (!editingTask) {
+      <section class="task-section">
+        <h2>Description</h2>
 
-      <h2>Description</h2>
-
-      @if (task.description) {
-
-        <p class="task-description">
-          {{ task.description }}
-        </p>
-
-      } @else {
-
-        <p class="empty-text">
-          No description.
-        </p>
-
-      }
-
-    </section>
-
+        @if (task.description) {
+          <p>
+            {{ task.description }}
+          </p>
+        } @else {
+          <p>
+            No description.
+          </p>
+        }
+      </section>
+    }
 
     <section class="task-section">
 
@@ -231,7 +326,7 @@
 
             <p>
               <strong>
-                User {{ comment.userId }}
+                {{ comment.username }}
               </strong>
             </p>
 
@@ -290,5 +385,39 @@
     </section>
 
   }
+  <section class="task-section">
+    <h2>Activity</h2>
+
+    @if (activityErrorMessage) {
+      <p class="error-message">
+        {{ activityErrorMessage }}
+      </p>
+
+    } @else if (activities.length === 0) {
+      <p class="empty-text">
+        No activity yet.
+      </p>
+
+    } @else {
+      <div class="activity-list">
+        @for (activity of activities; track activity.id) {
+          <div class="activity-item">
+            <p>
+              <strong>
+                {{ activity.username }}
+              </strong>
+              {{ getActivityText(activity) }}
+            </p>
+
+            <small>
+              {{ activity.createdAt | date:'dd.MM.yyyy HH:mm' }}
+            </small>
+          </div>
+        }
+      </div>
+
+    }
+
+  </section>
 
 </div>

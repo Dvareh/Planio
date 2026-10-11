@@ -8,14 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class BoardAccessService {
     public void checkAccess(Board board, User user) {
-
-        boolean isOwner = board.getOwner().getId().equals(user.getId());
-
-        boolean isParticipant = board.getParticipants()
-                .stream()
-                .anyMatch(u -> u.getId().equals(user.getId()));
-
-        if (!isOwner && !isParticipant) {
+        if (!hasAccess(board, user)) {
             throw new AccessDeniedException("No access to this board");
         }
     }

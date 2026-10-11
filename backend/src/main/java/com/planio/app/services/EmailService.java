@@ -41,7 +41,7 @@ public class EmailService {
 
                     <p>
                     Your task 
-                    <b>%s</b>
+                    "<b>%s</b>"
                     is due in 
                     <b>%d days</b>.
                     </p>

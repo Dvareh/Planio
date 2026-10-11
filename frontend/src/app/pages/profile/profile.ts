@@ -1,10 +1,11 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../services/auth';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
@@ -29,7 +30,7 @@ export class Profile {
 
   constructor(
     private auth: Auth,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -57,7 +58,7 @@ export class Profile {
         this.errorMessage = 'Failed to load profile.';
 
         this.changeDetectorRef.detectChanges();
-      }
+      },
     });
   }
 
@@ -70,8 +71,7 @@ export class Profile {
       return;
     }
 
-    const emailPattern =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailPattern.test(this.email)) {
       this.errorMessage = 'Please enter a valid email address.';
@@ -80,35 +80,37 @@ export class Profile {
 
     this.isSaving = true;
 
-    this.auth.updateCurrentUser({
-      username: this.username,
-      email: this.email
-    }).subscribe({
-      next: (user) => {
-        this.username = user.username;
-        this.email = user.email;
+    this.auth
+      .updateCurrentUser({
+        username: this.username,
+        email: this.email,
+      })
+      .subscribe({
+        next: (user) => {
+          this.username = user.username;
+          this.email = user.email;
 
-        this.isSaving = false;
-        this.isEditing = false;
+          this.isSaving = false;
+          this.isEditing = false;
 
-        this.successMessage = 'Profile updated successfully.';
+          this.successMessage = 'Profile updated successfully.';
 
-        this.changeDetectorRef.detectChanges();
-      },
-      error: (error) => {
-        console.error('Failed to update profile:', error);
+          this.changeDetectorRef.detectChanges();
+        },
+        error: (error) => {
+          console.error('Failed to update profile:', error);
 
-        this.isSaving = false;
+          this.isSaving = false;
 
-        if (error.error?.message) {
-          this.errorMessage = error.error.message;
-        } else {
-          this.errorMessage = 'Failed to update profile.';
-        }
+          if (error.error?.message) {
+            this.errorMessage = error.error.message;
+          } else {
+            this.errorMessage = 'Failed to update profile.';
+          }
 
-        this.changeDetectorRef.detectChanges();
-      }
-    });
+          this.changeDetectorRef.detectChanges();
+        },
+      });
   }
 
   changePassword(): void {
@@ -122,10 +124,7 @@ export class Profile {
 
     this.isChangingPassword = true;
 
-    this.auth.changePassword(
-      this.oldPassword,
-      this.newPassword
-    ).subscribe({
+    this.auth.changePassword(this.oldPassword, this.newPassword).subscribe({
       next: () => {
         this.oldPassword = '';
         this.newPassword = '';
@@ -147,7 +146,7 @@ export class Profile {
         }
 
         this.changeDetectorRef.detectChanges();
-      }
+      },
     });
   }
 

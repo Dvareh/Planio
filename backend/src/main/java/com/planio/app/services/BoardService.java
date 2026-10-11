@@ -2,12 +2,11 @@ package com.planio.app.services;
 
 import com.planio.app.dto.BoardDTO;
 import com.planio.app.dto.UserDTO;
-import com.planio.app.entity.Board;
-import com.planio.app.entity.Label;
-import com.planio.app.entity.User;
+import com.planio.app.entity.*;
 import com.planio.app.exceptions.ObjectNotFoundException;
 import com.planio.app.repositories.BoardRepository;
 import com.planio.app.repositories.LabelRepository;
+import com.planio.app.repositories.TaskRepository;
 import com.planio.app.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +30,8 @@ public class BoardService {
     private final CurrentUserService currentUserService;
     private final BoardAccessService boardAccessService;
     private final LabelRepository labelRepository;
+    private final TaskRepository taskRepository;
+    private final TaskActivityService activityService;
 
     private BoardDTO mapToDTO(Board board) {
         BoardDTO boardDTO = new BoardDTO();
@@ -93,21 +94,17 @@ public class BoardService {
         User participant = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ObjectNotFoundException("User", email));
 
+
+        boolean alreadyMember = board.getParticipants().stream()
+                .anyMatch(member -> member.getId().equals(participant.getId()));
+
+        if (board.getOwner().getId().equals(participant.getId()) || alreadyMember) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already belongs to this board");
+        }
+
         board.getParticipants().add(participant);
         boardRepository.save(board);
 
-    }
-
-    public List<BoardDTO> getAllBoards() {
-        log.info("Getting all boards");
-
-        User user = currentUserService.getCurrentUser();
-
-        return boardRepository.findAll()
-                .stream()
-                .filter(board -> boardAccessService.hasAccess(board, user))
-                .map(this::mapToDTO)
-                .toList();
     }
 
     public BoardDTO getBoardById(Long boardId) {
@@ -154,15 +151,12 @@ public class BoardService {
         boardRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<BoardDTO> getMyBoards() {
-
         User user = currentUserService.getCurrentUser();
 
-        List<Board> owned = boardRepository.findByOwner(user);
-        List<Board> participant = boardRepository.findByParticipants_Id(user.getId());
-
-        return Stream.concat(owned.stream(), participant.stream())
-                .distinct()
+        return boardRepository.findAccessibleBoards(user)
+                .stream()
                 .map(this::mapToDTO)
                 .toList();
     }
@@ -195,11 +189,23 @@ public class BoardService {
 
         boardAccessService.checkOwner(board, currentUser);
 
-        User participant = userRepository.findById(userId)
-                .orElseThrow(() -> new ObjectNotFoundException("User", userId));
+        if (board.getOwner().getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Board owner cannot be removed");
+        }
 
-        if (!board.getParticipants().remove(participant)) {
+        User participant = userRepository.findById(userId).orElseThrow(() -> new ObjectNotFoundException("User", userId));
+
+        boolean removed = board.getParticipants().removeIf(user -> user.getId().equals(userId));
+
+        if (!removed) {
             throw new ObjectNotFoundException("Participant", userId);
+        }
+
+        List<Task> tasks = taskRepository.findByBoard_IdAndAssignedUser_Id(boardId, userId);
+
+        for (Task task : tasks) {
+            activityService.record(task, currentUser, ActivityType.ASSIGNEE_CHANGED, participant.getUsername(), null);
+            task.setAssignedUser(null);
         }
 
         boardRepository.save(board);

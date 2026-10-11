@@ -1,6 +1,7 @@
 package com.planio.app.services;
 
 import com.planio.app.dto.CommentDTO;
+import com.planio.app.entity.ActivityType;
 import com.planio.app.entity.Comment;
 import com.planio.app.entity.Task;
 import com.planio.app.entity.User;
@@ -8,7 +9,6 @@ import com.planio.app.exceptions.AccessDeniedException;
 import com.planio.app.exceptions.ObjectNotFoundException;
 import com.planio.app.repositories.CommentRepository;
 import com.planio.app.repositories.TaskRepository;
-import com.planio.app.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,10 +24,11 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
     private final CurrentUserService currentUserService;
     private final BoardAccessService boardAccessService;
+    private final TaskActivityService activityService;
 
+    @Transactional
     public CommentDTO create(CommentDTO commentDTO) {
         log.info("Creating comment for task: {}", commentDTO.getTaskId());
 
@@ -48,7 +49,11 @@ public class CommentService {
 
         log.info("Comment created with id: {}", comment.getId());
 
-        return mapToDTO(commentRepository.save(comment));
+        Comment createdComment = commentRepository.save(comment);
+
+        activityService.record(task, user, ActivityType.COMMENT_ADDED, null, comment.getText());
+
+        return mapToDTO(createdComment);
     }
 
     public List<CommentDTO> getByTask(Long taskId) {
@@ -83,16 +88,19 @@ public class CommentService {
             throw new AccessDeniedException("You can only delete your own comments");
         }
 
+        activityService.record(comment.getTask(), user, ActivityType.COMMENT_DELETED, comment.getText(), null);
+
         commentRepository.delete(comment);
     }
 
     private CommentDTO mapToDTO(Comment comment) {
-        CommentDTO dto = new CommentDTO();
-        dto.setId(comment.getId());
-        dto.setText(comment.getText());
-        dto.setTaskId(comment.getTask().getId());
-        dto.setUserId(comment.getUser().getId());
-        return dto;
+        CommentDTO commentDTO = new CommentDTO();
+        commentDTO.setId(comment.getId());
+        commentDTO.setText(comment.getText());
+        commentDTO.setTaskId(comment.getTask().getId());
+        commentDTO.setUserId(comment.getUser().getId());
+        commentDTO.setUsername(comment.getUser().getUsername());
+        return commentDTO;
     }
 
     @Transactional
@@ -110,8 +118,15 @@ public class CommentService {
             throw new AccessDeniedException("You can only edit your own comments");
         }
 
+        activityService.record(comment.getTask(), user, ActivityType.COMMENT_UPDATED, comment.getText(), commentDTO.getText());
+
         comment.setText(commentDTO.getText());
+
+
+
 
         return mapToDTO(commentRepository.save(comment));
     }
+
+
 }

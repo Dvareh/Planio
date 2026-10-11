@@ -1,4 +1,22 @@
 <div class="settings-page">
+  <nav class="breadcrumbs">
+
+    <a routerLink="/dashboard">
+      Dashboard
+    </a>
+    <span>›</span>
+
+    @if (board) {
+      <a [routerLink]="['/boards', board.id]">
+        {{ board.name }}
+      </a>
+      <span>›</span>
+    }
+
+    <span>
+    Settings
+    </span>
+  </nav>
 
   <div class="settings-header">
     <div>
@@ -9,9 +27,6 @@
       }
     </div>
 
-    <button type="button" routerLink="/boards/{{ boardId }}">
-      Back to Board
-    </button>
   </div>
 
   @if (isLoading) {
@@ -120,7 +135,7 @@
               </div>
 
               @if (user.id !== board.ownerId) {
-                <button type="button" (click)="removeParticipant(user.id)">
+                <button type="button" (click)="removeParticipant(user)">
                   Remove
                 </button>
               }
@@ -170,7 +185,7 @@
           {{ label.name }}
         </span>
 
-              <button type="button" (click)="deleteLabel(label.id)">
+              <button type="button" (click)="deleteLabel(label)">
                 Delete
               </button>
 

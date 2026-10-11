@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { CurrentUser } from '../models/current-user';
-import { UserDTO } from '../models/user-dto';
+import { User } from '../models/user';
 
 import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth';
 import { environment } from '../environments/environment';
@@ -17,10 +17,7 @@ export class Auth {
   constructor(private http: HttpClient) {}
 
   login(request: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(
-      `${this.apiUrl}/login`,
-      request
-    ).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, request).pipe(
       tap(response => {
         localStorage.setItem('token', response.token);
       })
@@ -28,10 +25,7 @@ export class Auth {
   }
 
   register(request: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(
-      `${this.apiUrl}/register`,
-      request
-    ).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, request).pipe(
       tap(response => {
         localStorage.setItem('token', response.token);
       })
@@ -40,14 +34,11 @@ export class Auth {
 
   logout(): void {
     localStorage.removeItem('token');
+    this.currentUser = null;
   }
 
   getToken(): string | null {
     return localStorage.getItem('token');
-  }
-
-  isAuthenticated(): boolean {
-    return this.getToken() !== null;
   }
 
   getCurrentUser(): Observable<CurrentUser> {
@@ -71,14 +62,8 @@ export class Auth {
     );
   }
 
-  updateCurrentUser(request: {
-    username: string;
-    email: string;
-  }): Observable<UserDTO> {
-    return this.http.put<UserDTO>(
-      `${environment.apiUrl}/api/users/me`,
-      request
-    ).pipe(
+  updateCurrentUser(request: { username: string; email: string; }): Observable<User> {
+    return this.http.put<User>(`${environment.apiUrl}/api/users/me`, request).pipe(
       tap(user => {
         if (this.currentUser) {
           this.currentUser.name = user.username;
@@ -88,16 +73,9 @@ export class Auth {
     );
   }
 
-  changePassword(
-    oldPassword: string,
-    newPassword: string
-  ): Observable<string> {
-    return this.http.put<string>(
-      `${environment.apiUrl}/api/users/change-password`,
-      {
-        oldPassword,
-        newPassword
-      }
-    );
+  changePassword(oldPassword: string, newPassword: string): Observable<string> {
+    return this.http.put(`${environment.apiUrl}/api/users/change-password`,
+      { oldPassword, newPassword },
+      { responseType: 'text' });
   }
 }

@@ -35,12 +35,6 @@ public class BoardController {
         return boardService.getBoardById(id);
     }
 
-    @Operation(summary = "Get all boards")
-    @GetMapping
-    public List<BoardDTO> getAll() {
-        return boardService.getAllBoards();
-    }
-
     @Operation(summary = "Update board")
     @PutMapping("/{id}")
     public BoardDTO update(@PathVariable Long id,
