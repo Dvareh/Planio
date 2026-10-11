@@ -5,9 +5,10 @@ import { Observable } from 'rxjs';
 import { CreateTask } from '../models/create-task';
 import { UpdateTask } from '../models/update-task';
 import { TaskPage } from '../models/task-page';
-import { Task } from '../models/task';
+import { Task, TaskPriority } from '../models/task';
 import { TaskFilters } from '../models/task-filters';
 import { TaskStatus } from '../models/task-status';
+import { TaskActivity } from '../models/task-activity';
 
 @Injectable({
   providedIn: 'root'
@@ -78,39 +79,29 @@ export class TaskService {
   }
 
   assignTask(taskId: number, userId: number): Observable<Task> {
-    return this.http.put<Task>(
-      `${this.apiUrl}/${taskId}/assign/${userId}`,
-      {}
-    );
+    return this.http.put<Task>(`${this.apiUrl}/${taskId}/assign/${userId}`, {});
   }
 
   unassignTask(taskId: number): Observable<Task> {
-    return this.http.delete<Task>(
-      `${this.apiUrl}/${taskId}/assign`
-    );
+    return this.http.delete<Task>(`${this.apiUrl}/${taskId}/assign`);
   }
 
   addLabel(taskId: number, labelId: number): Observable<Task> {
-    return this.http.post<Task>(
-      `${this.apiUrl}/${taskId}/labels/${labelId}`,
-      {}
-    );
+    return this.http.post<Task>(`${this.apiUrl}/${taskId}/labels/${labelId}`, {});
   }
 
   removeLabel(taskId: number, labelId: number): Observable<Task> {
-    return this.http.delete<Task>(
-      `${this.apiUrl}/${taskId}/labels/${labelId}`
-    );
+    return this.http.delete<Task>(`${this.apiUrl}/${taskId}/labels/${labelId}`);
   }
 
-  updateStatus(
-    taskId: number,
-    status: TaskStatus
-  ): Observable<Task> {
-    return this.http.put<Task>(
-      `${this.apiUrl}/${taskId}/status`,
-      {},
-      { params: { status: status } }
-    );
+  updateStatus(taskId: number, status: TaskStatus): Observable<Task> {
+    return this.http.put<Task>(`${this.apiUrl}/${taskId}/status`, {}, { params: { status: status } });
+  }
+
+  getActivity(taskId: number): Observable<TaskActivity[]> {
+    return this.http.get<TaskActivity[]>(`${this.apiUrl}/${taskId}/activity`);}
+
+  updatePriority(taskId: number, priority: TaskPriority): Observable<Task> {
+    return this.http.put<Task>(`${this.apiUrl}/${taskId}/priority`, {}, { params: { priority: priority } });
   }
 }

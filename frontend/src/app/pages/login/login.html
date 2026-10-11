@@ -6,22 +6,12 @@
 
       <div class="group">
         <label for="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          name="email"
-          [(ngModel)]="email"
-        />
+        <input id="email" type="email" name="email" [(ngModel)]="email"/>
       </div>
 
       <div class="group">
         <label for="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          name="password"
-          [(ngModel)]="password"
-        />
+        <input id="password" type="password" name="password" [(ngModel)]="password"/>
       </div>
 
       @if (errorMessage) {
@@ -29,6 +19,13 @@
       }
 
       <button type="submit">Login</button>
+
+      <p>
+        Don't have an account?
+        <a routerLink="/register">
+          Register
+        </a>
+      </p>
 
     </form>
   </div>

@@ -4,10 +4,3 @@ export interface User {
   email: string;
   role: string;
 }
-
-export interface CurrentUser {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-}

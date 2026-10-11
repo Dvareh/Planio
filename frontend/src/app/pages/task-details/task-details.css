@@ -134,3 +134,22 @@
   }
 
 }
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.activity-item {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.activity-item p {
+  margin: 0 0 4px;
+}
+
+.activity-item small {
+  font-size: 12px;
+}

@@ -19,11 +19,16 @@ import java.util.List;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    @EntityGraph(attributePaths = {
-            "board",
-            "assignedUser"
-    })
-    List<Task> findByAssignedUser(User assignedUser);
+    @EntityGraph(attributePaths = {"board", "assignedUser"})
+    @Query("""
+    SELECT t FROM Task t
+    WHERE t.assignedUser = :user
+      AND (
+          t.board.owner = :user
+          OR :user MEMBER OF t.board.participants
+      )
+    """)
+    List<Task> findByAssignedUser(@Param("user") User user);
 
     @EntityGraph(attributePaths = {
             "board",
@@ -105,6 +110,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             Pageable pageable
     );
 
-    List<Task> findByDueDateBetween(LocalDate start, LocalDate end);
+    List<Task> findByDueDate(LocalDate dueDate);
+
+    List<Task> findByBoard_IdAndAssignedUser_Id(Long boardId, Long userId);
 
 }

@@ -1,14 +1,29 @@
 <div class="notifications">
 
+  <nav class="breadcrumbs">
+    <a routerLink="/dashboard">
+      Dashboard
+    </a>
+
+    <span>›</span>
+
+    <span>
+    Notifications
+    </span>
+  </nav>
+
   <div class="notifications-header">
     <div>
       <h1>Notifications</h1>
-      <p>
-        You have {{ unreadCount }} unread notification{{ unreadCount === 1 ? '' : 's' }}.
-      </p>
+
+      @if (!isLoading && !errorMessage) {
+        <p>
+          You have <strong>{{ unreadCount }}</strong> unread notifications.
+        </p>
+      }
     </div>
 
-    @if (unreadCount > 0) {
+    @if (!isLoading && !errorMessage && unreadCount > 0) {
       <button type="button" (click)="markAllAsRead()">
         Mark all as read
       </button>
@@ -28,6 +43,10 @@
       <h2>No notifications</h2>
       <p>You don't have any notifications yet.</p>
     </div>
+  }
+
+  @if (actionError) {
+    <p role="alert">{{ actionError }}</p>
   }
 
   @if (!isLoading && !errorMessage && notifications.length > 0) {
@@ -53,9 +72,13 @@
 
             <div class="notification-actions">
 
-              <button type="button" [routerLink]="['/tasks', notification.taskId]" (click)="markAsRead(notification)">
-                Open task
-              </button>
+              @if (notification.taskId) {
+
+                <button type="button" (click)="openTask(notification)">
+                  Open Task
+                </button>
+
+              }
 
               @if (!notification.read) {
                 <button type="button" (click)="markAsRead(notification)">
