@@ -126,6 +126,7 @@ public class TaskService {
         return mapToDTO(createdTask);
     }
 
+    @Transactional(readOnly = true)
     public TaskDTO getById(Long id) {
         log.info("Fetching task by id: {}", id);
 

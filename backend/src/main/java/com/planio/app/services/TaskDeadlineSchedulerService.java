@@ -25,7 +25,7 @@ public class TaskDeadlineSchedulerService {
     private final NotificationRepository notificationRepository;
 
 
-    @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(cron = "0 0 9 * * *", zone = "Europe/Warsaw")
     public void checkDeadlines(){
         checkTasksForDays(3);
 

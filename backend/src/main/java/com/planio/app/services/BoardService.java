@@ -107,6 +107,7 @@ public class BoardService {
 
     }
 
+    @Transactional(readOnly = true)
     public BoardDTO getBoardById(Long boardId) {
         log.info("Getting board with id: {}", boardId);
         Board board = boardRepository.findById(boardId)
@@ -161,6 +162,7 @@ public class BoardService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<UserDTO> getParticipants(Long boardId) {
         User user = currentUserService.getCurrentUser();
 
