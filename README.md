@@ -2,398 +2,181 @@
 
 Planio is a full-stack task and project management application built with Spring Boot and Angular.
 
-The application allows users to organize work using boards and Kanban task management, collaborate with other users, assign tasks, track deadlines, manage priorities and labels, leave comments, receive notifications, and review task activity history.
+It helps users organize work on shared boards, manage tasks, track deadlines, and collaborate through comments and task activity history.
 
----
+**[Open live application](https://alekphoto.com/)**
+
+## Versions
+
+- **`main`** — the functional application with a basic interface.
+- **`server-deploy`** — the deployed version with the styled interface.
 
 ## Features
 
-### Authentication
+### Boards and collaboration
 
-- User registration
-- Secure login
-- JWT-based authentication
-- Protected frontend routes
-- Automatic redirect to the login page for unauthenticated users
-- Password change
-- Logout
-- Current user profile
+- Create, edit, and delete boards.
+- Use board keys and numbered task identifiers.
+- Add existing users to boards by email.
+- Remove participants or leave a board.
+- Restrict board settings to the owner.
+- Automatically unassign tasks when their assignee leaves or is removed.
 
-### Boards
+### Task management
 
-- Create boards
-- Update board name and description
-- Delete boards
-- Board ownership
-- Custom board keys
-- Invite participants by email
-- Remove participants
-- Access control for board members
-- Dedicated Board Settings page
-- Owner-only board management actions
+- Organize tasks on a Kanban board.
+- Set task status, priority, assignee, and deadline.
+- Create board labels and attach them to tasks.
+- Add comments and edit or delete your own comments.
+- Review task activity history.
+- View assigned tasks and deadlines on the dashboard.
 
-### Kanban Task Management
+### Accounts and access
 
-Each board contains a Kanban board with four task statuses:
+- Register and log in using lowercase email addresses.
+- Authenticate API requests with JWT.
+- Update your profile and change your password.
+- Access boards and tasks as an owner or participant.
+- List users and change their roles through the administration API.
 
-- To Do
-- In Progress
-- Done
-- Cancelled
+### Deadline reminders
 
-Tasks can be moved between columns using drag and drop.
+The application checks deadlines daily at **09:00 Europe/Warsaw**.
 
-### Tasks
+Assigned tasks can generate email and in-app reminders **3 days and 1 day before their deadline**. Completed and cancelled tasks are excluded.
 
-- Create tasks
-- View task details
-- Update tasks
-- Delete tasks
-- Edit task title
-- Edit task description
-- Edit due date
-- Change task status
-- Change task priority
-- Assign and unassign tasks
-- Assign tasks only to board participants
-- Task keys generated per board, for example:
-  - `PLAN-1`
-  - `PLAN-2`
-- Independent task numbering for every board
+The backend must be running at the scheduled time. Missed runs are not automatically replayed after a restart.
 
-### Task Priorities
+## Tech stack
 
-Supported priorities:
+| Area | Technologies |
+| --- | --- |
+| Frontend | Angular 22, TypeScript, Angular CDK, RxJS |
+| Backend | Java 21, Spring Boot 4, Spring Security, Spring Data JPA |
+| Database | PostgreSQL |
+| Authentication | JWT, BCrypt |
+| Email | Spring Mail, SMTP |
+| API documentation | Springdoc OpenAPI, Swagger UI |
+| Deployment | Ubuntu, nginx, systemd, HTTPS |
 
-- Low
-- Medium
-- High
-- Urgent
+## Getting started
 
-Priority can be changed directly from Task Details.
-
-### Labels
-
-- Default labels created for each board
-- Create custom board labels
-- Delete custom labels
-- Assign labels to tasks
-- Remove labels from tasks
-- Board-specific labels
-- Label management restricted to the board owner
-
-### Advanced Task Filtering
-
-Tasks can be filtered by:
-
-- Title
-- Status
-- Priority
-- Assigned user
-- Label
-- Due date range
-
-The backend also supports pagination and sorting.
-
-### Comments
-
-- Add comments to tasks
-- View task comments
-- Edit comments
-- Delete comments
-- Display comment author username
-- Comment changes are recorded in task activity history
-
-### Task Activity History
-
-Planio stores the history of important task changes.
-
-Tracked events include:
-
-- Task creation
-- Title changes
-- Description changes
-- Status changes
-- Priority changes
-- Due date changes
-- Assignee changes
-- Label additions
-- Label removals
-- Comment creation
-- Comment updates
-- Comment deletion
-
-Each activity entry contains:
-
-- User who performed the action
-- Type of change
-- Previous and new values when applicable
-- Date and time of the action
-
-### Notifications
-
-- In-app notifications
-- Notification history
-- Mark notification as read
-- Mark all notifications as read
-- Open related task directly from a notification
-- Deadline notifications
-
-### Email Reminders
-
-Planio automatically checks upcoming task deadlines.
-
-Assigned users receive email reminders:
-
-- 3 days before the deadline
-- 1 day before the deadline
-
-Reminder state is stored in the database to prevent duplicate notifications.
-
-### Dashboard
-
-The Dashboard provides an overview of the user's work.
-
-It includes:
-
-- My Boards
-- My Tasks
-- Task statistics
-- To Do task count
-- In Progress task count
-- Completed task count
-- Cancelled task count
-- Upcoming deadlines
-- Overdue tasks
-- Direct navigation to boards and tasks
-
-### User Profile
-
-Users can:
-
-- View their profile
-- Update username
-- Update email
-- Change password
-
-### Navigation
-
-The frontend includes:
-
-- Header
-- Sidebar
-- Dashboard navigation
-- Boards navigation
-- Notifications navigation
-- Profile navigation
-- Board Settings navigation
-- Breadcrumb navigation between Dashboard, Boards, Settings, and Tasks
-
-### Access Control
-
-Planio includes board-level access control.
-
-Board owners can:
-
-- Manage board settings
-- Manage participants
-- Manage labels
-- Delete the board
-- Manage tasks
-
-Board participants can:
-
-- Access boards they participate in
-- View tasks
-- Create and update tasks
-- Move tasks on the Kanban board
-- Assign tasks
-- Use existing labels
-- Add comments
-
-Users who are not members of a board cannot access its data.
-
----
-
-## Administration
-
-Planio supports role-based authorization.
-
-### Roles
-
-- `USER`
-- `ADMIN`
-
-### Administrators can:
-
-- View all users
-- Update users
-- Change user roles
-- Delete users
-- Access protected administration endpoints
-
-Regular users cannot access administrator endpoints.
-
----
-
-## Security
-
-Planio uses JWT-based authentication and role-based authorization.
-
-Security features include:
-
-- Spring Security
-- JWT authentication
-- BCrypt password hashing
-- Stateless authentication
-- Protected backend endpoints
-- Protected Angular routes
-- Board-level authorization
-- Role-based administration endpoints
-
----
-
-## Technology Stack
-
-### Backend
+### Requirements
 
 - Java 21
-- Spring Boot
-- Spring Security
-- Spring Data JPA
-- Hibernate
-- Spring Email
 - PostgreSQL
-- JWT
-- Lombok
-- Maven
+- Node.js compatible with Angular 22
+- npm
+- Gmail credentials with an App Password for email reminders
 
-### Frontend
+The Maven Wrapper is included.
 
-- Angular
-- TypeScript
-- HTML5
-- CSS3
-- Angular Router
-- Angular HttpClient
-- Angular CDK Drag & Drop
-- RxJS
+### 1. Clone the repository
 
-### API Documentation
-
-- Swagger
-- OpenAPI
-
----
-
-## Main Application Structure
-
-Planio consists of two main applications:
-
-```text
-Planio/
-├── backend/
-└── frontend/
+```powershell
+git clone https://github.com/Dvareh/Planio.git
+cd Planio
+git switch main
 ```
 
-### Backend
+### 2. Create a PostgreSQL database
 
-Responsible for:
+Connect to PostgreSQL as an administrator and run:
 
-- REST API
-- Authentication
-- Authorization
-- Business logic
-- Database access
-- Notifications
-- Email reminders
-- Task activity tracking
+```sql
+CREATE USER planio WITH PASSWORD 'replace-with-your-local-password';
+CREATE DATABASE planio OWNER planio;
+```
 
-### Frontend
+### 3. Configure the backend
 
-Responsible for:
+Copy the configuration template:
 
-- User interface
-- Authentication flow
-- Dashboard
-- Kanban board
-- Task management
-- Board management
-- User profile
-- Notifications
-- Activity history
+```powershell
+Copy-Item backend/src/main/resources/application.properties.template backend/src/main/resources/application.properties
+```
 
----
+Replace the contents of the application.properties.template with your data and rename it to application.properties or copy to application.properties prepared template
 
-## Main Entities
+For Gmail, `spring.mail.password` must contain an App Password.
 
-The main domain entities are:
+`app.mail.from` specifies the sender address. In this configuration, it uses the Gmail address from `spring.mail.username`.
 
-- User
-- Board
-- Task
-- Label
-- Comment
-- Notification
-- TaskActivity
 
-Main relationships include:
+`jwt.expiration` is measured in milliseconds. The example uses a token lifetime of 24 hours.
 
-- A User can own multiple Boards
-- A Board can have multiple participants
-- A Board contains multiple Tasks
-- A Task belongs to one Board
-- A Task can be assigned to a User
-- A Task can have multiple Labels
-- A Task can have multiple Comments
-- A Task can have multiple Activity entries
+For this local setup, Hibernate creates and updates tables through `ddl-auto=update`. You do not need to execute a separate table creation script.
 
----
+### 4. Start the backend
 
-## API Documentation
+From the repository root:
 
-When the backend application is running, Swagger/OpenAPI documentation can be used to inspect and test available REST endpoints.
+```powershell
+cd backend
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.jvmArguments=-Duser.timezone=Europe/Warsaw"
+```
 
-The API includes endpoints for:
+Don't forget to change timezone if needed
 
-- Authentication
-- Users
-- Administration
-- Boards
-- Tasks
-- Labels
-- Comments
-- Notifications
-- Task Activity
+The backend runs at **http://localhost:8080**.
 
----
+### 5. Start the frontend
 
-## Project Status
+Open a second terminal at the repository root:
 
-Core backend and frontend functionality is implemented.
+```powershell
+cd frontend
+npm ci
+npm start
+```
 
-Completed functionality includes:
+Open **http://localhost:4200**.
 
-- Authentication
-- Board management
-- Kanban task management
-- Collaboration
-- Task priorities
-- Labels
-- Advanced filters
-- Comments
-- Notifications
-- Email deadline reminders
-- Activity history
-- Dashboard
-- User profile
-- Administration
-- Access control
+The local API URL is configured in:
 
-Final visual UI/CSS polish and deployment may be handled separately from the core functional implementation.
+`frontend/src/app/environments/environment.ts`
 
----
+```typescript
+export const environment = {
+  apiUrl: 'http://localhost:8080'
+};
+```
+
+Use `localhost:4200` for local development, as this origin is allowed by the backend's CORS configuration.
+
+### 6. Try the application
+
+1. Register an account using a lowercase email address.
+2. Log in and create a board.
+3. Create tasks and set their priorities, assignees, and deadlines.
+4. Add another registered user to collaborate.
+
+## API documentation
+
+With the backend running locally:
+
+- **Swagger UI:** http://localhost:8080/swagger-ui/index.html
+- **OpenAPI specification:** http://localhost:8080/v3/api-docs
+
+Protected endpoints require a JWT obtained through login.
+
+## Project structure
+
+```text
+backend/
+  src/main/java/          Backend application
+  src/main/resources/     Configuration template and resources
+  src/test/               Backend tests
+
+frontend/
+  src/app/                Pages, components, services, and routing
+  public/                 Static assets
+```
 
 ## Author
 
-**Artiom Prilepschi**
+Artiom Prilepschi
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
