@@ -14,6 +14,11 @@ import { BoardSettings } from './pages/board-settings/board-settings';
 
 export const routes: Routes = [
   {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('./pages/home/home').then(m => m.Home),
+  },
+  {
     path: 'login',
     component: Login,
     canActivate: [guestGuard],
@@ -28,11 +33,6 @@ export const routes: Routes = [
     component: Layout,
     canActivateChild: [authGuard],
     children: [
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full',
-      },
       { path: 'dashboard', component: Dashboard },
       {
         path: 'boards',
@@ -47,5 +47,5 @@ export const routes: Routes = [
       { path: 'profile', component: Profile },
     ],
   },
-  { path: '**', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: '' },
 ];

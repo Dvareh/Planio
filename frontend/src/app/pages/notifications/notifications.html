@@ -1,99 +1,63 @@
-<div class="notifications">
-
-  <nav class="breadcrumbs">
-    <a routerLink="/dashboard">
-      Dashboard
-    </a>
-
-    <span>›</span>
-
-    <span>
-    Notifications
-    </span>
+<div class="notifications page">
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">Notifications</span>
   </nav>
 
-  <div class="notifications-header">
+  <header class="notice-head page-head">
     <div>
       <h1>Notifications</h1>
-
       @if (!isLoading && !errorMessage) {
-        <p>
-          You have <strong>{{ unreadCount }}</strong> unread notifications.
-        </p>
+        <p class="subtitle" aria-live="polite">You have <strong>{{ unreadCount }}</strong> unread notifications.</p>
       }
     </div>
-
     @if (!isLoading && !errorMessage && unreadCount > 0) {
-      <button type="button" (click)="markAllAsRead()">
-        Mark all as read
-      </button>
+      <button type="button" class="btn" (click)="markAllAsRead()">Mark all as read</button>
     }
-  </div>
+  </header>
 
   @if (isLoading) {
-    <p>Loading notifications...</p>
+    <p class="loading" role="status">Loading notifications...</p>
   }
-
   @if (!isLoading && errorMessage) {
-    <p>{{ errorMessage }}</p>
+    <p class="error" role="alert">{{ errorMessage }}</p>
   }
-
   @if (!isLoading && !errorMessage && notifications.length === 0) {
-    <div class="empty-state">
+    <div class="empty">
       <h2>No notifications</h2>
       <p>You don't have any notifications yet.</p>
     </div>
   }
-
   @if (actionError) {
-    <p role="alert">{{ actionError }}</p>
+    <p class="error" role="alert">{{ actionError }}</p>
   }
 
   @if (!isLoading && !errorMessage && notifications.length > 0) {
-    <div class="notification-list">
+    <div class="notices">
       @for (notification of notifications; track notification.id) {
-        <div class="notification" [class.unread]="!notification.read">
-
-          <div class="notification-content">
-
-            <div class="notification-title">
+        <article class="notice" [class.unread]="!notification.read">
+          <div class="notice-body">
+            <div class="notice-title">
               @if (!notification.read) {
-                <span class="unread-indicator"></span>
+                <span class="notice-state">Unread</span>
+              } @else {
+                <span class="notice-state read">Read</span>
               }
-
-              <strong>
-                {{ getNotificationText(notification) }}
-              </strong>
+              <h2>{{ getNotificationText(notification) }}</h2>
             </div>
-
-            <p>
-              {{ notification.sentAt | date:'medium' }}
-            </p>
-
-            <div class="notification-actions">
-
-              @if (notification.taskId) {
-
-                <button type="button" (click)="openTask(notification)">
-                  Open Task
-                </button>
-
-              }
-
-              @if (!notification.read) {
-                <button type="button" (click)="markAsRead(notification)">
-                  Mark as read
-                </button>
-              }
-
-            </div>
-
+            <time class="notice-date">{{ notification.sentAt | date:'medium' }}</time>
           </div>
-
-        </div>
+          <div class="notice-buttons buttons">
+            @if (notification.taskId) {
+              <button type="button" class="btn btn-small" (click)="openTask(notification)">Open task</button>
+            }
+            @if (!notification.read) {
+              <button type="button" class="btn-link btn-small" (click)="markAsRead(notification)">Mark as read</button>
+            }
+          </div>
+        </article>
       }
-
     </div>
   }
-
 </div>

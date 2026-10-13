@@ -2,10 +2,7 @@ package com.planio.app.dto;
 
 import com.planio.app.entity.TaskPriority;
 import com.planio.app.entity.TaskStatus;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -24,7 +21,7 @@ public class TaskDTO {
     private String description;
 
     @NotNull(message = "Due date is required")
-    @Future(message = "Due date must be in future")
+    @FutureOrPresent(message = "Due date cannot be in the past")
     private LocalDate dueDate;
 
     private TaskStatus status;

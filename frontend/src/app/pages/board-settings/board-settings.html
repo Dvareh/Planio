@@ -1,216 +1,143 @@
-<div class="settings-page">
-  <nav class="breadcrumbs">
-
-    <a routerLink="/dashboard">
-      Dashboard
-    </a>
-    <span>›</span>
-
+<div class="page settings">
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span aria-hidden="true">/</span>
     @if (board) {
-      <a [routerLink]="['/boards', board.id]">
-        {{ board.name }}
-      </a>
-      <span>›</span>
+      <a [routerLink]="['/boards', board.id]">{{ board.name }}</a>
+      <span aria-hidden="true">/</span>
     }
-
-    <span>
-    Settings
-    </span>
+    <span aria-current="page">Settings</span>
   </nav>
 
-  <div class="settings-header">
+  <header class="page-head">
     <div>
-      <h1>Board Settings</h1>
-
+      <h1>Board settings</h1>
       @if (board) {
-        <p>Manage settings for "{{ board.name }}"</p>
+        <p class="subtitle">Manage settings for {{ board.name }}.</p>
       }
     </div>
-
-  </div>
+  </header>
 
   @if (isLoading) {
-    <p>Loading board settings...</p>
+    <p class="loading" role="status">Loading board settings...</p>
   }
-
   @else if (errorMessage && !board) {
-    <p class="error-message">{{ errorMessage }}</p>
+    <p class="error" role="alert">{{ errorMessage }}</p>
   }
-
   @else if (board) {
-
     @if (!isOwner()) {
-      <div class="access-message">
+      <div class="no-access">
         <h2>Access denied</h2>
-        <p>
-          Only the board owner can manage board settings.
-        </p>
+        <p>Only the board owner can manage board settings.</p>
       </div>
     }
-
     @if (isOwner()) {
-
-      <section class="settings-section">
-
-        <h2>General</h2>
-
-        <div class="form-group">
-          <label for="name">Board name</label>
-
-          <input id="name" type="text" [(ngModel)]="name">
+      <section class="settings-block" aria-labelledby="general-settings-title">
+        <div class="intro">
+          <h2 id="general-settings-title">General</h2>
+          <p>The name and description shown to everyone on this board.</p>
         </div>
-
-        <div class="form-group">
-          <label for="description">Description</label>
-
-          <textarea id="description" rows="5" [(ngModel)]="description"></textarea>
-        </div>
-
-        @if (successMessage) {
-          <p class="success-message">
-            {{ successMessage }}
-          </p>
-        }
-
-        @if (errorMessage) {
-          <p class="error-message">
-            {{ errorMessage }}
-          </p>
-        }
-
-        <button type="button" (click)="saveChanges()" [disabled]="isSaving">
-          @if (isSaving) {
-            Saving...
-          } @else {
-            Save Changes
+        <div class="section-body">
+          <div class="field">
+            <label for="name">Board name</label>
+            <input id="name" type="text" [(ngModel)]="name">
+          </div>
+          <div class="field">
+            <label for="description">Description</label>
+            <textarea id="description" rows="4" [(ngModel)]="description"></textarea>
+          </div>
+          @if (successMessage) {
+            <p class="success" role="status">{{ successMessage }}</p>
           }
-        </button>
-
+          @if (errorMessage) {
+            <p class="error" role="alert">{{ errorMessage }}</p>
+          }
+          <button type="button" class="btn-main" (click)="saveChanges()" [disabled]="isSaving">
+            @if (isSaving) { Saving... } @else { Save changes }
+          </button>
+        </div>
       </section>
 
-
-      <section class="settings-section">
-
-        <h2>Members</h2>
-
-        <div class="add-member">
-
-          <input type="email" placeholder="Enter participant email" [(ngModel)]="participantEmail">
-
-          <button type="button" (click)="addParticipant()">
-            Add Member
-          </button>
-
+      <section class="settings-block" aria-labelledby="member-settings-title">
+        <div class="intro">
+          <h2 id="member-settings-title">Members</h2>
+          <p>Give an existing Planio user access to this board.</p>
         </div>
-
-        @if (participantMessage) {
-          <p class="success-message">
-            {{ participantMessage }}
-          </p>
-        }
-
-        @if (participantError) {
-          <p class="error-message">
-            {{ participantError }}
-          </p>
-        }
-
-
-        <div class="members-list">
-
-          @for (user of participants; track user.id) {
-
-            <div class="member">
-
-              <div>
-                <strong>{{ user.username }}</strong>
-
-                @if (user.id === board.ownerId) {
-                  <span class="role">Owner</span>
-                } @else {
-                  <span class="role">Member</span>
+        <div class="section-body">
+          <div class="add-member">
+            <div class="field">
+              <label for="participant-email">Member email</label>
+              <input id="participant-email" type="email" autocomplete="email" placeholder="name@example.com" [(ngModel)]="participantEmail">
+            </div>
+            <button type="button" class="btn" (click)="addParticipant()">Add member</button>
+          </div>
+          @if (participantMessage) {
+            <p class="success" role="status">{{ participantMessage }}</p>
+          }
+          @if (participantError) {
+            <p class="error" role="alert">{{ participantError }}</p>
+          }
+          <div class="members-list">
+            @for (user of participants; track user.id) {
+              <div class="member">
+                <div class="member-info">
+                  <strong>{{ user.username }}</strong>
+                  @if (user.id === board.ownerId) {
+                    <span class="role">Owner</span>
+                  } @else {
+                    <span class="role">Member</span>
+                  }
+                  <p>{{ user.email }}</p>
+                </div>
+                @if (user.id !== board.ownerId) {
+                  <button type="button" class="btn-link btn-small remove-button" (click)="removeParticipant(user)" [attr.aria-label]="'Remove ' + user.username + ' from board'">Remove</button>
                 }
-
-                <p>{{ user.email }}</p>
               </div>
-
-              @if (user.id !== board.ownerId) {
-                <button type="button" (click)="removeParticipant(user)">
-                  Remove
-                </button>
-              }
-            </div>
-          }
+            }
+          </div>
         </div>
-
       </section>
 
-      <section class="settings-section">
+      <section class="settings-block" aria-labelledby="label-settings-title">
+        <div class="intro">
+          <h2 id="label-settings-title">Labels</h2>
+          <p>Labels are available for all tasks on this board.</p>
+        </div>
+        <div class="section-body">
+          <div class="add-label">
+            <div class="field">
+              <label for="new-label-name">Label name</label>
+              <input id="new-label-name" type="text" placeholder="New label name" maxlength="50" [(ngModel)]="newLabelName">
+            </div>
+            <button type="button" class="btn" (click)="createLabel()">Add label</button>
+          </div>
+          @if (labelMessage) {
+            <p class="success" role="status">{{ labelMessage }}</p>
+          }
+          @if (labelError) {
+            <p class="error" role="alert">{{ labelError }}</p>
+          }
+          <div class="labels-list">
+            @for (label of labels; track label.id) {
+              <div class="label-item">
+                <span class="tag">{{ label.name }}</span>
+                <button type="button" class="btn-link btn-small remove-button" (click)="deleteLabel(label)" [attr.aria-label]="'Delete label ' + label.name">Delete</button>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
 
-        <h2>Labels</h2>
-
-        <p>
-          Labels are available for all tasks on this board.
-        </p>
-
-        <div class="add-label">
-
-          <input type="text" placeholder="New label name" maxlength="50" [(ngModel)]="newLabelName">
-
-          <button type="button" (click)="createLabel()">
-            Add Label
+      <section class="settings-block danger-zone" aria-labelledby="danger-settings-title">
+        <div class="intro">
+          <h2 id="danger-settings-title">Delete board</h2>
+          <p>Deleting the board cannot be undone.</p>
+        </div>
+        <div class="section-body">
+          <button type="button" class="btn-danger" (click)="deleteBoard()" [disabled]="isDeleting">
+            @if (isDeleting) { Deleting... } @else { Delete board }
           </button>
-
         </div>
-
-        @if (labelMessage) {
-          <p class="success-message">
-            {{ labelMessage }}
-          </p>
-        }
-
-        @if (labelError) {
-          <p class="error-message">
-            {{ labelError }}
-          </p>
-        }
-
-        <div class="labels-list">
-
-          @for (label of labels; track label.id) {
-
-            <div class="label-item">
-
-        <span>
-          {{ label.name }}
-        </span>
-
-              <button type="button" (click)="deleteLabel(label)">
-                Delete
-              </button>
-
-            </div>
-          }
-        </div>
-
-      </section>
-
-      <section class="danger-section">
-
-        <h2>Danger Zone</h2>
-
-        <p>
-          Deleting the board cannot be undone.
-        </p>
-
-        <button type="button" class="delete-button" (click)="deleteBoard()" [disabled]="isDeleting">
-          @if (isDeleting) {
-            Deleting...
-          } @else {
-            Delete Board
-          }
-        </button>
-
       </section>
     }
   }

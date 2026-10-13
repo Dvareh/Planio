@@ -1,35 +1,41 @@
-<div class="register">
-  <div class="card">
-    <h1>Register</h1>
+<div class="auth-page">
+  <section class="auth-card" aria-labelledby="register-title">
+    <header class="auth-head">
+      <p class="brand">Planio</p>
+      <h1 id="register-title">Register</h1>
+      <p class="subtitle">Create your account to get started.</p>
+    </header>
 
-    <form class="form" (ngSubmit)="onSubmit()">
-      <div class="group">
-        <label for="username">Username</label>
-        <input id="username" type="text" name="username" [(ngModel)]="username" required/>
+    <form class="auth-form" (ngSubmit)="onSubmit()">
+      <div class="field">
+        <label for="register-username">Username</label>
+        <input id="register-username" type="text" name="username" [(ngModel)]="username"
+               autocomplete="username" required>
       </div>
 
-      <div class="group">
-        <label for="email">Email</label>
-        <input id="email" type="email" name="email" [(ngModel)]="email" required/>
+      <div class="field">
+        <label for="register-email">Email</label>
+        <input id="register-email" type="email" name="email" [(ngModel)]="email"
+               autocomplete="email" autocapitalize="none" spellcheck="false" required>
       </div>
 
-      <div class="group">
-        <label for="password">Password</label>
-        <input id="password" type="password" name="password" [(ngModel)]="password" minlength="8" required/>
+      <div class="field">
+        <label for="register-password">Password</label>
+        <input id="register-password" type="password" name="password" [(ngModel)]="password"
+               autocomplete="new-password" aria-describedby="register-password-help"
+               minlength="8" required>
+        <small id="register-password-help" class="hint">Use at least 8 characters.</small>
       </div>
 
       @if (errorMessage) {
-        <p class="error">{{ errorMessage }}</p>
+        <p class="error" role="alert">{{ errorMessage }}</p>
       }
 
-      <button type="submit">Register</button>
+      <button type="submit" class="btn-main">Register</button>
 
-      <p>
-        Already have an account?
-        <a routerLink="/login">
-          Login
-        </a>
+      <p class="auth-footer">
+        Already have an account? <a routerLink="/login">Login</a>
       </p>
     </form>
-  </div>
+  </section>
 </div>

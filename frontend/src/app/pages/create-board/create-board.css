@@ -1,0 +1,58 @@
+:host {
+  display: block;
+}
+
+.create-board {
+  max-width: 780px;
+}
+
+.board-form {
+  display: grid;
+  gap: 24px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  overflow-wrap: anywhere;
+}
+
+.board-form .field {
+  margin: 0;
+}
+
+.optional {
+  color: var(--gray);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.key-hint {
+  color: var(--gray);
+  font-size: 13px;
+}
+
+.key-hint strong {
+  color: var(--text);
+}
+
+.hint {
+  margin: 0;
+  color: var(--gray);
+  font-size: 14px;
+}
+
+.actions {
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 480px) {
+  .board-form {
+    padding: 20px 16px;
+    gap: 20px;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}

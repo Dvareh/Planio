@@ -1,4 +1,89 @@
+:host {
+  display: block;
+}
+
 .header {
-  padding: 16px 24px;
-  border-bottom: 1px solid gray;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding: 12px 28px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  font-size: 1.5rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.logo-mark {
+  display: flex;
+  align-items: flex-start;
+  gap: 3px;
+  width: 26px;
+  height: 26px;
+}
+
+.logo-mark span {
+  display: block;
+  width: 7px;
+  height: 26px;
+  border-radius: 1px;
+  background: var(--green);
+}
+
+.logo-mark span:nth-child(2) {
+  height: 21px;
+}
+
+.logo-mark span:nth-child(3) {
+  height: 16px;
+}
+
+.header-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  font-size: .9375rem;
+}
+
+.header-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  text-decoration: none;
+  color: var(--gray);
+}
+
+.header-links a:hover {
+  color: var(--green);
+  text-decoration: underline;
+}
+
+.header-links button {
+  font-size: inherit;
+  font-weight: 500;
+  color: var(--gray);
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 12px 16px;
+  }
+
+  .header-links {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: .875rem;
+  }
 }

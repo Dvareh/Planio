@@ -1,254 +1,204 @@
-<div class="board-page">
-
-  <nav class="breadcrumbs">
-    <a routerLink="/dashboard">
-      Dashboard
-    </a>
-    <span>›</span>
-
+<div class="page board-page">
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span aria-hidden="true">/</span>
     @if (board) {
-      <span>
-        {{ board.name }}
-      </span>
+      <span aria-current="page">{{ board.name }}</span>
     }
-
   </nav>
 
-  <h1>{{ board?.name }}</h1>
+  <header class="page-head">
+    <div class="board-title">
+      <h1>{{ board?.name }}</h1>
+      @if (board?.description) {
+        <p class="subtitle">{{ board?.description }}</p>
+      }
+    </div>
+    <div class="buttons">
+      @if (isOwner()) {
+        <button type="button" class="btn" routerLink="/boards/{{ boardId }}/settings">
+          Board settings
+        </button>
+      }
+      <button type="button" class="btn-main" (click)="showCreateForm = true">Add task</button>
+      @if (canLeave()) {
+        <button #leaveButton type="button" class="btn-danger" (click)="showLeaveConfirm = true" [disabled]="isLeaving">Leave board</button>
+      }
+    </div>
+  </header>
 
-  @if (board?.description) {
-    <p class="board-description">
-      {{ board?.description }}
-    </p>
-  }
-
-  @if (isOwner()) {
-    <button type="button" routerLink="/boards/{{ boardId }}/settings">
-      Board Settings
-    </button>
-  }
-
-  <h2>Tasks</h2>
-
-  <button type="button" (click)="showCreateForm = true">
-    Add Task
-  </button>
-
-  <div class="participants">
-    <h2>Members</h2>
-
-    @for (participant of participants; track participant.id) {
-      <div class="participant">
-        <div>
-          <strong>
-            {{ participant.username }}
-          </strong>
-          <p>
-            {{ participant.email }}
-          </p>
-        </div>
-
-        @if (board?.ownerId === participant.id) {
-          <span>
-            Owner
-          </span>
-        } @else {
-          <span>
-            Member
-          </span>
-        }
+  @if (showLeaveConfirm && canLeave()) {
+    <section class="leave-box" aria-labelledby="leave-title" [attr.aria-busy]="isLeaving">
+      <h2 id="leave-title">Leave this board?</h2>
+      <p>Your assigned tasks will become unassigned. You will lose access until the owner adds you again.</p>
+      <div class="buttons">
+        <button type="button" class="btn-danger" (click)="leaveBoard()" [disabled]="isLeaving">
+          {{ isLeaving ? 'Leaving...' : 'Yes, leave board' }}
+        </button>
+        <button type="button" class="btn" (click)="cancelLeave()" [disabled]="isLeaving">Cancel</button>
       </div>
-    } @empty {
-      <p>
-        No members yet.
-      </p>
-    }
-  </div>
+      @if (leaveError) {
+        <p class="error" role="alert">{{ leaveError }}</p>
+      }
+    </section>
+  }
 
-  <div class="task-filters">
+  <details class="members">
+    <summary>Members <span class="member-count">{{ participants.length }}</span></summary>
+    <div class="members-list">
+      @for (participant of participants; track participant.id) {
+        <div class="member">
+          <div>
+            <strong>{{ participant.username }}</strong>
+            <p>{{ participant.email }}</p>
+          </div>
+          @if (board?.ownerId === participant.id) {
+            <span class="badge">Owner</span>
+          } @else {
+            <span class="badge">Member</span>
+          }
+        </div>
+      } @empty {
+        <p class="subtitle">No members yet.</p>
+      }
+    </div>
+  </details>
 
-    <h2>Filters</h2>
-
-
-    <div class="filter-row">
-      <label>
+  <section class="filters" aria-labelledby="board-filters-title">
+    <div class="section-head">
+      <h2 id="board-filters-title">Filters</h2>
+      <div class="filter-buttons">
+        <button type="button" class="btn btn-small" (click)="applyFilters()">Apply filters</button>
+        <button type="button" class="btn-link btn-small" (click)="clearFilters()">Clear</button>
+      </div>
+    </div>
+    <div class="filter-fields">
+      <label class="search-field" for="board-search">
         Search
-        <input type="text" placeholder="Search by title" [(ngModel)]="search">
+        <input id="board-search" type="search" placeholder="Search by title" [(ngModel)]="search">
       </label>
-
-      <label>
+      <label for="board-status">
         Status
-        <select [(ngModel)]="selectedStatus">
-          <option value="">
-            All statuses
-          </option>
-          <option value="TODO">
-            To Do
-          </option>
-          <option value="IN_PROGRESS">
-            In Progress
-          </option>
-          <option value="DONE">
-            Done
-          </option>
-          <option value="CANCELLED">
-            Cancelled
-          </option>
+        <select id="board-status" [(ngModel)]="selectedStatus">
+          <option value="">All statuses</option>
+          <option value="TODO">To do</option>
+          <option value="IN_PROGRESS">In progress</option>
+          <option value="DONE">Done</option>
+          <option value="CANCELLED">Cancelled</option>
         </select>
       </label>
-
-      <label>
+      <label for="board-priority">
         Priority
-        <select [(ngModel)]="selectedPriority">
-          <option value="">
-            All priorities
-          </option>
-          <option value="LOW">
-            Low
-          </option>
-          <option value="MEDIUM">
-            Medium
-          </option>
-          <option value="HIGH">
-            High
-          </option>
-          <option value="URGENT">
-            Urgent
-          </option>
+        <select id="board-priority" [(ngModel)]="selectedPriority">
+          <option value="">All priorities</option>
+          <option value="LOW">Low</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="HIGH">High</option>
+          <option value="URGENT">Urgent</option>
         </select>
       </label>
-
-    </div>
-    <div class="filter-row">
-      <label>
-        Assigned User
-        <select [(ngModel)]="selectedAssignedUserId">
-          <option [ngValue]="null">
-            All users
-          </option>
+      <label for="board-assignee">
+        Assigned user
+        <select id="board-assignee" [(ngModel)]="selectedAssignedUserId">
+          <option [ngValue]="null">All users</option>
           @for (user of participants; track user.id) {
-            <option [ngValue]="user.id">
-              {{ user.username }}
-            </option>
-
+            <option [ngValue]="user.id">{{ user.username }}</option>
           }
         </select>
       </label>
-
-      <label>
+      <label for="board-label">
         Label
-        <select [(ngModel)]="selectedLabelId">
-          <option [ngValue]="null">
-            All labels
-          </option>
+        <select id="board-label" [(ngModel)]="selectedLabelId">
+          <option [ngValue]="null">All labels</option>
           @for (label of labels; track label.id) {
-            <option [ngValue]="label.id">
-              {{ label.name }}
-            </option>
+            <option [ngValue]="label.id">{{ label.name }}</option>
           }
         </select>
       </label>
-
-    </div>
-    <div class="filter-row">
-      <label>
-        Due From
-        <input type="date" [(ngModel)]="dueDateFrom">
+      <label for="board-due-from">
+        Due from
+        <input id="board-due-from" type="date" [(ngModel)]="dueDateFrom">
       </label>
-      <label>
-        Due To
-        <input type="date" [(ngModel)]="dueDateTo">
+      <label for="board-due-to">
+        Due to
+        <input id="board-due-to" type="date" [(ngModel)]="dueDateTo">
       </label>
-    </div>
-
-    <div class="filter-row">
-      <label>
+      <label for="board-sort">
         Sort by
-        <select [(ngModel)]="sortBy">
+        <select id="board-sort" [(ngModel)]="sortBy">
           <option value="dueDate">Due date</option>
           <option value="title">Title</option>
         </select>
       </label>
-
-      <label>
+      <label for="board-direction">
         Direction
-        <select [(ngModel)]="direction">
+        <select id="board-direction" [(ngModel)]="direction">
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
       </label>
     </div>
+  </section>
 
-    <div class="filter-actions">
-      <button type="button" (click)="applyFilters()">
-        Apply Filters
-      </button>
-      <button type="button" (click)="clearFilters()">
-        Clear
-      </button>
-
+  <section aria-labelledby="board-tasks-title">
+    <div class="section-head task-head">
+      <h2 id="board-tasks-title">Tasks</h2>
+      <p class="task-count" aria-live="polite">Loaded {{ tasks.length }} of {{ totalElements }} tasks</p>
     </div>
-
-  </div>
-
-  <div class="kanban-board" cdkDropListGroup>
-    @for (column of columns; track column.status) {
-      <div class="kanban-column">
-        <div class="kanban-column-header">
-          <h3>{{ column.title }}</h3>
-          @if (column.tasks.length != 1) {
-            <span>{{ column.tasks.length }} tasks</span>
-          } @else {
-            <span>{{ column.tasks.length }} task</span>
-          }
-
-
-        </div>
-
-        <div class="kanban-tasks" cdkDropList [cdkDropListData]="column.tasks" [cdkDropListSortingDisabled]="true" (cdkDropListDropped)="dropTask($event, column.status)">
-          @for (task of column.tasks; track task.id) {
-            <div class="kanban-card" cdkDrag [cdkDragData]="task" [routerLink]="['/tasks', task.id]">
-              <span class="task-key">{{ task.taskKey }}</span>
-              <h4>{{ task.title }}</h4>
-
-              <p>Priority: {{ task.priority | taskPriorityLabel }}</p>
-              <p>Due: {{ task.dueDate }}</p>
-
-              @if (task.labels.length > 0) {
-                <div class="kanban-labels">
-                  @for (label of task.labels; track label.id) {
-                    <span class="kanban-label">{{ label.name }}</span>
+    <div class="kanban" cdkDropListGroup role="region" aria-label="Task board; scroll horizontally to see all columns" tabindex="0">
+      @for (column of columns; track column.status) {
+        <section class="column" [attr.data-status]="column.status" [attr.aria-label]="column.title">
+          <div class="column-head">
+            <h3>{{ column.title }}</h3>
+            @if (column.tasks.length != 1) {
+              <span>{{ column.tasks.length }} tasks</span>
+            } @else {
+              <span>{{ column.tasks.length }} task</span>
+            }
+          </div>
+          <div class="cards" cdkDropList [cdkDropListData]="column.tasks" [cdkDropListSortingDisabled]="true" (cdkDropListDropped)="dropTask($event, column.status)">
+            @for (task of column.tasks; track task.id) {
+              <a class="task-card" cdkDrag [cdkDragData]="task" [routerLink]="['/tasks', task.id]">
+                <span class="task-key">{{ task.taskKey }}</span>
+                <h4>{{ task.title }}</h4>
+                <div class="task-meta">
+                  <p class="priority" [attr.data-priority]="task.priority">{{ task.priority | taskPriorityLabel }} priority</p>
+                  @if (task.dueDate) {
+                    <p>Due: {{ task.dueDate }}</p>
+                  } @else {
+                    <p>No due date</p>
                   }
                 </div>
-              }
-            </div>
-          } @empty {
-            <p class="empty-column">
-              No tasks
-            </p>
-          }
-        </div>
-      </div>
-    }
-  </div>
-
-  <p>Loaded {{ tasks.length }} of {{ totalElements }} tasks</p>
-
-  @if (taskLoadError) {
-    <p class="error">{{ taskLoadError }}</p>
-  }
-
-  @if (isLoadingTasks) {
-    <p>Loading tasks...</p>
-  }
-
-  @if (nextPage < totalPages || taskLoadError) {
-    <button type="button" (click)="loadMoreTasks()" [disabled]="isLoadingTasks">
-      {{ taskLoadError ? 'Try again' : 'Load more' }}
-    </button>
-  }
+                @if (task.labels.length > 0) {
+                  <div class="tags">
+                    @for (label of task.labels; track label.id) {
+                      <span class="tag">{{ label.name }}</span>
+                    }
+                  </div>
+                }
+              </a>
+            } @empty {
+              <p class="empty-column">No tasks</p>
+            }
+          </div>
+        </section>
+      }
+    </div>
+    <div class="feedback" aria-live="polite">
+      @if (taskLoadError) {
+        <p class="error" role="alert">{{ taskLoadError }}</p>
+      }
+      @if (isLoadingTasks) {
+        <p class="loading">Loading tasks...</p>
+      }
+      @if (nextPage < totalPages || taskLoadError) {
+        <button type="button" class="btn" (click)="loadMoreTasks()" [disabled]="isLoadingTasks">
+          {{ taskLoadError ? 'Try again' : 'Load more' }}
+        </button>
+      }
+    </div>
+  </section>
 </div>
-
 
 @if (showCreateForm) {
   <app-create-task-modal
@@ -257,4 +207,3 @@
     (taskCreated)="onTaskCreated()"
   />
 }
-

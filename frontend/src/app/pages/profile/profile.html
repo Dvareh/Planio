@@ -1,166 +1,118 @@
-<div class="profile">
-  <nav class="breadcrumbs">
-
-    <a routerLink="/dashboard">
-      Dashboard
-    </a>
-
-    <span>›</span>
-
-    <span>
-    Profile
-    </span>
+<div class="profile page">
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Dashboard</a>
+    <span aria-hidden="true">›</span>
+    <span aria-current="page">Profile</span>
   </nav>
 
-  <div class="profile-header">
-    <h1>Profile</h1>
-    <p>View and manage your account information.</p>
-  </div>
+  <header class="page-head">
+    <div>
+      <h1>Profile</h1>
+      <p class="subtitle">View and manage your account information.</p>
+    </div>
+  </header>
 
   @if (isLoading) {
-    <p>Loading profile...</p>
+    <p class="loading" role="status">Loading profile...</p>
   }
 
   @if (!isLoading && errorMessage && !isEditing) {
-    <div class="message error">
-      {{ errorMessage }}
-    </div>
+    <div class="error" role="alert">{{ errorMessage }}</div>
   }
 
   @if (!isLoading) {
-
-    <div class="profile-card">
-
-      <div class="card-header">
+    <section class="panel" aria-labelledby="personal-title">
+      <header class="section-head">
         <div>
-          <h2>Personal information</h2>
-          <p>Your account information.</p>
+          <h2 id="personal-title">Personal information</h2>
+          <p class="hint">Your account information.</p>
         </div>
-
         @if (!isEditing) {
-          <button type="button" class="secondary-button" (click)="startEditing()">
-            Edit profile
-          </button>
+          <button type="button" class="btn" (click)="startEditing()">Edit profile</button>
         }
-      </div>
+      </header>
 
       @if (!isEditing) {
-
-        <div class="profile-info">
-
+        <dl class="profile-info">
           <div class="info-row">
-            <span class="info-label">Username</span>
-            <span class="info-value">{{ username }}</span>
+            <dt>Username</dt>
+            <dd>{{ username }}</dd>
           </div>
-
           <div class="info-row">
-            <span class="info-label">Email</span>
-            <span class="info-value">{{ email }}</span>
+            <dt>Email</dt>
+            <dd>{{ email }}</dd>
           </div>
-
-          @if (role == 'ADMIN'){
+          @if (role == 'ADMIN') {
             <div class="info-row">
-              <span class="info-label">Role</span>
-              <span class="info-value">{{ role }}</span>
+              <dt>Role</dt>
+              <dd>{{ role }}</dd>
             </div>
           }
-
-        </div>
+        </dl>
 
         @if (successMessage) {
-          <div class="message success">
-            {{ successMessage }}
-          </div>
+          <div class="success" role="status">{{ successMessage }}</div>
         }
-
       } @else {
-
-        <div class="form-group">
-          <label for="username">Username</label>
-
-          <input id="username" type="text" [(ngModel)]="username" placeholder="Enter username">
-        </div>
-
-        <div class="form-group">
-          <label for="email">Email</label>
-
-          <input id="email" type="email" [(ngModel)]="email" placeholder="Enter email">
-        </div>
-
-        @if (errorMessage) {
-          <div class="message error">
-            {{ errorMessage }}
+        <div class="fields">
+          <div class="field">
+            <label for="profile-username">Username</label>
+            <input id="profile-username" type="text" [(ngModel)]="username"
+                   placeholder="Enter username" autocomplete="username">
           </div>
-        }
+          <div class="field">
+            <label for="profile-email">Email</label>
+            <input id="profile-email" type="email" [(ngModel)]="email" placeholder="Enter email"
+                   autocomplete="email" autocapitalize="none" spellcheck="false">
+          </div>
 
-        <div class="button-group">
+          @if (errorMessage) {
+            <div class="error" role="alert">{{ errorMessage }}</div>
+          }
 
-          <button type="button" class="primary-button" (click)="saveProfile()" [disabled]="isSaving">
-
-            @if (isSaving) {
-              Saving...
-            } @else {
-              Save changes
-            }
-
-          </button>
-
-          <button type="button" class="secondary-button" (click)="cancelEditing()" [disabled]="isSaving">
-            Cancel
-          </button>
-
+          <div class="buttons">
+            <button type="button" class="btn-main" (click)="saveProfile()" [disabled]="isSaving">
+              @if (isSaving) { Saving... } @else { Save changes }
+            </button>
+            <button type="button" class="btn" (click)="cancelEditing()" [disabled]="isSaving">Cancel</button>
+          </div>
         </div>
-
       }
+    </section>
 
-    </div>
-
-
-    <div class="profile-card">
-
-      <div class="card-header">
+    <section class="panel" aria-labelledby="password-title">
+      <header class="section-head">
         <div>
-          <h2>Change password</h2>
-          <p>Update your account password.</p>
+          <h2 id="password-title">Change password</h2>
+          <p class="hint">Update your account password.</p>
         </div>
-      </div>
+      </header>
 
-      <div class="form-group">
-        <label for="oldPassword">Current password</label>
-
-        <input id="oldPassword" type="password" [(ngModel)]="oldPassword" placeholder="Enter current password">
-      </div>
-
-      <div class="form-group">
-        <label for="newPassword">New password</label>
-
-        <input id="newPassword" type="password" [(ngModel)]="newPassword" placeholder="Enter new password">
-      </div>
-
-      @if (passwordSuccessMessage) {
-        <div class="message success">
-          {{ passwordSuccessMessage }}
+      <div class="fields">
+        <div class="field">
+          <label for="oldPassword">Current password</label>
+          <input id="oldPassword" type="password" [(ngModel)]="oldPassword"
+                 placeholder="Enter current password" autocomplete="current-password">
         </div>
-      }
-
-      @if (passwordErrorMessage) {
-        <div class="message error">
-          {{ passwordErrorMessage }}
+        <div class="field">
+          <label for="newPassword">New password</label>
+          <input id="newPassword" type="password" [(ngModel)]="newPassword"
+                 placeholder="Enter new password" autocomplete="new-password">
         </div>
-      }
 
-      <button type="button" class="primary-button" (click)="changePassword()" [disabled]="isChangingPassword">
-
-        @if (isChangingPassword) {
-          Changing...
-        } @else {
-          Change password
+        @if (passwordSuccessMessage) {
+          <div class="success" role="status">{{ passwordSuccessMessage }}</div>
+        }
+        @if (passwordErrorMessage) {
+          <div class="error" role="alert">{{ passwordErrorMessage }}</div>
         }
 
-      </button>
-
-    </div>
-
+        <div class="buttons">
+          <button type="button" class="btn-main" (click)="changePassword()" [disabled]="isChangingPassword">
+            @if (isChangingPassword) { Changing... } @else { Change password }
+          </button>
+        </div>
+      </div>
+    </section>
   }
-
 </div>

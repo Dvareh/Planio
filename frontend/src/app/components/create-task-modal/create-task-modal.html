@@ -1,62 +1,49 @@
-<div class="modal-backdrop">
+<div class="overlay">
+  <div class="modal" role="dialog" aria-labelledby="create-task-title">
+    <header class="modal-head">
+      <h2 id="create-task-title">Create task</h2>
+      <p class="subtitle">Add a task to this board.</p>
+    </header>
 
-  <div class="modal">
-
-    <h2>Create Task</h2>
-
-    <label>
-      Title
-      <input type="text" [(ngModel)]="task.title">
-    </label>
-
-    <label>
-      Description
-      <textarea [(ngModel)]="task.description"></textarea>
-    </label>
-
-    <label>
-      Due date
-      <input type="date" [(ngModel)]="task.dueDate">
-    </label>
-
-    <label>
-      Status
-
-      <select [(ngModel)]="task.status">
-        <option value="TODO">TODO</option>
-        <option value="IN_PROGRESS">IN PROGRESS</option>
-        <option value="DONE">DONE</option>
-        <option value="CANCELLED">CANCELLED</option>
-      </select>
-    </label>
-
-    <label>
-      Priority
-
-      <select [(ngModel)]="task.priority">
-        <option value="LOW">Low</option>
-        <option value="MEDIUM">Medium</option>
-        <option value="HIGH">High</option>
-        <option value="URGENT">Urgent</option>
-      </select>
-    </label>
-
-    @if (errorMsg) {
-      <p>{{ errorMsg }}</p>
-    }
-
-    <div class="modal-actions">
-
-      <button type="button" (click)="closeModal()">
-        Cancel
-      </button>
-
-      <button type="button" (click)="createTask()">
-        Create
-      </button>
-
+    <div class="field">
+      <label for="create-task-name">Title <span class="required">(required)</span></label>
+      <input id="create-task-name" type="text" [(ngModel)]="task.title" aria-required="true">
+    </div>
+    <div class="field">
+      <label for="create-task-description">Description</label>
+      <textarea id="create-task-description" rows="3" [(ngModel)]="task.description"></textarea>
+    </div>
+    <div class="fields">
+      <div class="field">
+        <label for="create-task-due">Due date <span class="required">(required)</span></label>
+        <input id="create-task-due" type="date" [(ngModel)]="task.dueDate" [min]="today" aria-required="true">
+      </div>
+      <div class="field">
+        <label for="create-task-status">Status</label>
+        <select id="create-task-status" [(ngModel)]="task.status">
+          <option value="TODO">To do</option>
+          <option value="IN_PROGRESS">In progress</option>
+          <option value="DONE">Done</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="create-task-priority">Priority</label>
+        <select id="create-task-priority" [(ngModel)]="task.priority">
+          <option value="LOW">Low</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="HIGH">High</option>
+          <option value="URGENT">Urgent</option>
+        </select>
+      </div>
     </div>
 
+    @if (errorMsg) {
+      <p class="error" role="alert">{{ errorMsg }}</p>
+    }
+    <div class="modal-buttons">
+      <button type="button" class="btn" (click)="closeModal()">Cancel</button>
+      <button type="button" class="btn-main" (click)="createTask()">Create task</button>
+    </div>
   </div>
-
 </div>

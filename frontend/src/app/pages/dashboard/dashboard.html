@@ -1,202 +1,107 @@
-<div class="dashboard">
-
-  <div class="dashboard-header">
+<div class="dashboard page">
+  <div class="dashboard-header page-head">
     <div>
       <h1>Dashboard</h1>
-      <p>Overview of your tasks and boards</p>
+      <p class="subtitle">Overview of your tasks and boards</p>
     </div>
-
-    <button type="button" routerLink="/create-board">
-      Create Board
-    </button>
+    <button type="button" class="btn-main" routerLink="/create-board">Create board</button>
   </div>
 
-  <section class="statistics">
+  @if (!tasksLoading && !tasksError) {
+    <section class="stats" aria-label="Task overview">
+      <div class="stat"><h2>My tasks</h2><p class="total">{{ tasks.length }}</p></div>
+      <div class="stat"><h2>To do</h2><p>{{ todoCount }}</p></div>
+      <div class="stat"><h2>In progress</h2><p>{{ inProgressCount }}</p></div>
+      <div class="stat"><h2>Completed</h2><p>{{ doneCount }}</p></div>
+      <div class="stat"><h2>Cancelled</h2><p>{{ cancelledCount }}</p></div>
+    </section>
+  }
 
-    <div class="stat-card">
-      <h3>My Tasks</h3>
-      <p>{{ tasks.length }}</p>
-    </div>
-
-    <div class="stat-card">
-      <h3>To Do</h3>
-      <p>{{ todoCount }}</p>
-    </div>
-
-    <div class="stat-card">
-      <h3>In Progress</h3>
-      <p>{{ inProgressCount }}</p>
-    </div>
-
-    <div class="stat-card">
-      <h3>Completed</h3>
-      <p>{{ doneCount }}</p>
-    </div>
-
-    <div class="stat-card">
-      <h3>Cancelled</h3>
-      <p>{{ cancelledCount }}</p>
-    </div>
-
-  </section>
-
-  <section class="tasks-section">
-
-    <div class="section-header">
-      <h2>My Tasks</h2>
-    </div>
-
+  <section class="tasks-section" aria-labelledby="my-tasks-title" [attr.aria-busy]="tasksLoading">
+    <h2 id="my-tasks-title">My tasks</h2>
     @if (tasksLoading) {
-      <p>
-        Loading tasks...
-      </p>
+      <p class="loading" role="status">Loading tasks...</p>
     } @else if (tasksError) {
-      <p class="error-message">
-        {{ tasksError }}
-      </p>
+      <p class="error" role="alert">{{ tasksError }}</p>
     } @else if (tasks.length === 0) {
-      <p>
-        No tasks assigned to you.
-      </p>
+      <p class="empty">No tasks assigned to you.</p>
     } @else {
-
       <div class="tasks">
-
         @for (task of tasks; track task.id) {
-
-          <div class="task">
-
+          <article class="task">
             <div class="task-info">
-              <span>{{ task.taskKey }}</span>
+              <span class="task-key">{{ task.taskKey }}</span>
               <h3>{{ task.title }}</h3>
               <p>{{ task.description }}</p>
             </div>
-
-            <div class="task-details">
-
-              <span>
-                {{ task.status | taskStatusLabel }}
-                @if (task.dueDate | taskDeadline: task.status) {
-                    | {{ task.dueDate | taskDeadline: task.status }}
-                }
-              </span>
-
-              @if (task.dueDate) {
-                <span>
-                  Due: {{ task.dueDate | date:'mediumDate' }}
-                </span>
+            <div class="task-meta">
+              <span class="badge" [attr.data-status]="task.status">{{ task.status | taskStatusLabel }}</span>
+              @if (task.dueDate | taskDeadline: task.status) {
+                <span class="due-note">{{ task.dueDate | taskDeadline: task.status }}</span>
               }
-
+              @if (task.dueDate) { <span>Due: {{ task.dueDate | date:'mediumDate' }}</span> }
             </div>
-
-            <button type="button" [routerLink]="['/tasks', task.id]">
-              Open
-            </button>
-          </div>
-        }
-      </div>
-    }
-
-  </section>
-
-
-  <section class="deadlines-section">
-
-    <h2>Upcoming Deadlines</h2>
-
-    @if (upcomingTasks.length === 0) {
-      <p>No upcoming deadlines.</p>
-    } @else {
-      <div class="deadlines">
-
-        @for (task of upcomingTasks; track task.id) {
-
-          <div class="deadline">
-
-            <div>
-              <strong>{{ task.taskKey }} — {{ task.title }}</strong>
-              <p>{{ task.status | taskStatusLabel }}</p>
-            </div>
-
-            <span>
-              {{ task.dueDate | date:'mediumDate' }}
-            </span>
-
-            <button type="button" [routerLink]="['/tasks', task.id]">
-              Open
-            </button>
-          </div>
+            <button type="button" class="btn-small" [routerLink]="['/tasks', task.id]" [attr.aria-label]="'Open task ' + task.taskKey + ': ' + task.title">Open</button>
+          </article>
         }
       </div>
     }
   </section>
 
-  <section class="overdue-section">
-    <h2>Overdue Tasks</h2>
+  @if (!tasksLoading && !tasksError) {
+    <section class="deadlines-section" aria-labelledby="upcoming-title">
+      <h2 id="upcoming-title">Upcoming deadlines</h2>
+      @if (upcomingTasks.length === 0) {
+        <p class="empty">No upcoming deadlines.</p>
+      } @else {
+        <div class="deadlines">
+          @for (task of upcomingTasks; track task.id) {
+            <article class="deadline">
+              <div><strong>{{ task.taskKey }} — {{ task.title }}</strong><p>{{ task.status | taskStatusLabel }}</p></div>
+              <span class="due-date">{{ task.dueDate | date:'mediumDate' }}</span>
+              <button type="button" class="btn-small" [routerLink]="['/tasks', task.id]" [attr.aria-label]="'Open task ' + task.taskKey">Open</button>
+            </article>
+          }
+        </div>
+      }
+    </section>
 
-    @if (overdueTasks.length === 0) {
-      <p>No overdue tasks.</p>
-    } @else {
-      <div class="deadlines">
-        @for (task of overdueTasks; track task.id) {
-          <div class="deadline">
-            <div>
-              <strong>{{ task.taskKey }} — {{ task.title }}</strong>
+    <section class="overdue-section" aria-labelledby="overdue-title">
+      <h2 id="overdue-title">Overdue tasks</h2>
+      @if (overdueTasks.length === 0) {
+        <p class="empty">No overdue tasks.</p>
+      } @else {
+        <div class="deadlines">
+          @for (task of overdueTasks; track task.id) {
+            <article class="deadline overdue">
+              <div><strong>{{ task.taskKey }} — {{ task.title }}</strong><p>{{ task.status | taskStatusLabel }} | {{ task.dueDate | taskDeadline: task.status }}</p></div>
+              <span class="due-date">Due: {{ task.dueDate | date:'mediumDate' }}</span>
+              <button type="button" class="btn-small" [routerLink]="['/tasks', task.id]" [attr.aria-label]="'Open task ' + task.taskKey">Open</button>
+            </article>
+          }
+        </div>
+      }
+    </section>
 
-              <p>
-                {{ task.status | taskStatusLabel }}
-                | {{ task.dueDate | taskDeadline: task.status }}
-              </p>
+  }
 
-            </div>
-
-            <span>
-            Due: {{ task.dueDate | date:'mediumDate' }}
-            </span>
-
-            <button type="button" [routerLink]="['/tasks', task.id]">
-              Open
-            </button>
-          </div>
-        }
-      </div>
-    }
-
-  </section>
-
-  <section class="boards-section">
-
-    <h2>My Boards</h2>
-
+  <section class="boards-section" id="my-boards" aria-labelledby="boards-title" [attr.aria-busy]="boardsLoading">
+    <h2 id="boards-title">My boards</h2>
     @if (boardsLoading) {
-      <p>
-        Loading boards...
-      </p>
+      <p class="loading" role="status">Loading boards...</p>
     } @else if (boardsError) {
-      <p class="error-message">
-        {{ boardsError }}
-      </p>
+      <p class="error" role="alert">{{ boardsError }}</p>
     } @else if (boards.length === 0) {
-      <p>
-        No boards yet.
-      </p>
+      <p class="empty">No boards yet. Create a board to organise your tasks.</p>
     } @else {
-
       <div class="boards">
-
         @for (board of boards; track board.id) {
-          <div class="board">
-
+          <article class="board">
             <h3>{{ board.name }}</h3>
-
-            <button type="button" [routerLink]="['/boards', board.id]">
-              Open
-            </button>
-
-          </div>
+            <button type="button" class="btn-small" [routerLink]="['/boards', board.id]" [attr.aria-label]="'Open board ' + board.name">Open board</button>
+          </article>
         }
       </div>
     }
   </section>
-
 </div>

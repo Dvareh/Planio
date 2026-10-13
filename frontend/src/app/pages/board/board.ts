@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 
 import { Board as BoardModel} from '../../models/board'
 import { BoardService } from '../../services/board';
@@ -67,6 +74,12 @@ export class Board implements OnInit, OnDestroy {
   isLoadingTasks = false;
   taskLoadError = '';
 
+  showLeaveConfirm = false;
+  isLeaving = false;
+  leaveError = '';
+
+  @ViewChild('leaveButton') private leaveButton?: ElementRef<HTMLButtonElement>;
+
   private activeFilters: TaskFilters | null = null;
   private taskRequest?: Subscription;
 
@@ -107,7 +120,7 @@ export class Board implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Failed to load board', error);
 
-        if (error.status === 403) {
+        if (error.status === 403 || error.status === 404) {
           this.router.navigate(['/dashboard']);
         }
       },
@@ -218,6 +231,44 @@ export class Board implements OnInit, OnDestroy {
 
   isOwner(): boolean {
     return this.board?.ownerId === this.auth.currentUser?.id;
+  }
+
+  canLeave(): boolean {
+    const userId = this.auth.currentUser?.id;
+
+    return !!this.board && userId !== undefined
+      && this.board.ownerId !== userId
+      && this.participants.some(user => user.id === userId);
+  }
+
+  cancelLeave(): void {
+    if (this.isLeaving) {
+      return;
+    }
+
+    this.showLeaveConfirm = false;
+    this.leaveError = '';
+    this.leaveButton?.nativeElement.focus();
+  }
+
+  leaveBoard(): void {
+    if (!this.canLeave() || !this.showLeaveConfirm || this.isLeaving) {
+      return;
+    }
+
+    this.isLeaving = true;
+    this.leaveError = '';
+
+    this.boardService.leaveBoard(this.boardId).subscribe({
+      next: () => {
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error) => {
+        this.isLeaving = false;
+        this.leaveError = error.error?.message || 'Failed to leave the board. Please try again.';
+        this.changeDetectorRef.detectChanges();
+      },
+    });
   }
 
   applyFilters(): void {

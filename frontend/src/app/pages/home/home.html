@@ -1,0 +1,70 @@
+<div class="home">
+  <header class="top">
+    <a class="logo" routerLink="/" aria-label="Planio home">
+      <span class="mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      Planio
+    </a>
+    <nav class="links" aria-label="Account">
+      @if (auth.getToken()) {
+        <a class="btn-main" routerLink="/dashboard">Open dashboard</a>
+      } @else {
+        <a routerLink="/login">Log in</a>
+        <a class="btn-main" routerLink="/register">Create account</a>
+      }
+    </nav>
+  </header>
+
+  <main id="home-main">
+    <section class="intro" aria-labelledby="home-title">
+      <div>
+        <p class="note">A simple task manager</p>
+        <h1 id="home-title">Organize your tasks and projects</h1>
+      </div>
+      <div class="intro-text">
+        <p class="lead">Create boards, organize tasks and track deadlines. Work on your own or bring your team together.</p>
+        <p class="note audience">For personal projects, study groups and small teams.</p>
+      </div>
+    </section>
+
+    <section class="features" aria-labelledby="features-title">
+      <h2 id="features-title">What you can do</h2>
+      <div class="feature-list">
+        <article>
+          <h3>Keep tasks organized</h3>
+          <p>Give each project a board. Add tasks, choose priorities and move work between statuses.</p>
+        </article>
+        <article>
+          <h3>Work together</h3>
+          <p>Add board members, assign tasks and discuss details in comments.</p>
+        </article>
+        <article>
+          <h3>Follow deadlines</h3>
+          <p>Set due dates, check upcoming work and keep track of task notifications.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="start" aria-labelledby="start-title">
+      <h2 id="start-title">Start with one board</h2>
+      <ol class="steps">
+        <li>
+          <h3>Create an account</h3>
+          <p>Sign up with your email and choose a password.</p>
+        </li>
+        <li>
+          <h3>Create a board</h3>
+          <p>Give your project a name and add the first tasks.</p>
+        </li>
+        <li>
+          <h3>Make it yours</h3>
+          <p>Set deadlines, add labels and bring in the people you work with.</p>
+        </li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Planio</span>
+    <p>A simple place for personal and shared projects.</p>
+  </footer>
+</div>

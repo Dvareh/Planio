@@ -1,29 +1,33 @@
-<div class="create-board">
-  <h2>Create Board</h2>
-
-  <form (ngSubmit)="createBoard()">
+<div class="create-board page">
+  <header class="page-head">
     <div>
+      <h1>Create board</h1>
+      <p class="subtitle">Give your board a name and a task key.</p>
+    </div>
+  </header>
+
+  <form class="board-form" (ngSubmit)="createBoard()">
+    <div class="field">
       <label for="boardName">Board name</label>
-      <input id="boardName" type="text" [(ngModel)]="boardName" name="boardName" placeholder="Enter board name" required>
+      <input id="boardName" type="text" [(ngModel)]="boardName" name="boardName"
+             placeholder="Enter board name" autocomplete="off" required>
+    </div>
 
-      <label>
-        Board Key
-        <input type="text" name="boardKey" maxlength="10" [(ngModel)]="boardKey" [placeholder]="suggestedKey">
-      </label>
-
+    <div class="field">
+      <label for="boardKey">Board key <span class="optional">(optional)</span></label>
+      <input id="boardKey" type="text" name="boardKey" maxlength="10" [(ngModel)]="boardKey"
+             [placeholder]="suggestedKey" autocomplete="off" spellcheck="false"
+             aria-describedby="board-key-help">
       @if (!boardKey.trim()) {
-        <small>
-          Suggested key: {{ suggestedKey }}
-        </small>
+        <small class="key-hint">Suggested key: <strong>{{ suggestedKey }}</strong></small>
       }
-
-      <p>
+      <p id="board-key-help" class="hint">
         The key is used for task identifiers and cannot be changed later.
       </p>
     </div>
 
-    <button type="submit" [disabled]="!boardName.trim()">
-      Create
-    </button>
+    <div class="actions">
+      <button type="submit" class="btn-main" [disabled]="!boardName.trim()">Create</button>
+    </div>
   </form>
 </div>

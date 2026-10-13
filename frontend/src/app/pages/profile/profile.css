@@ -1,147 +1,112 @@
+:host {
+  display: block;
+}
+
 .profile {
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 960px;
 }
 
-.profile-header {
+.panel {
+  padding: 28px;
   margin-bottom: 24px;
-}
-
-.profile-header h1 {
-  margin: 0 0 8px;
-}
-
-.profile-header p {
-  margin: 0;
-}
-
-.profile-card {
-  padding: 24px;
-  margin-bottom: 24px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: white;
+  background: var(--card-bg);
+  overflow-wrap: anywhere;
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
+.section-head {
   margin-bottom: 24px;
 }
 
-.card-header h2 {
-  margin: 0 0 6px;
+.section-head h2 {
+  margin: 0 0 4px;
 }
 
-.card-header p {
+.hint {
   margin: 0;
+  color: var(--gray);
+  font-size: 14px;
+}
+
+.section-head button {
+  flex-shrink: 0;
 }
 
 .profile-info {
-  border-top: 1px solid #eee;
+  margin: 0;
 }
 
 .info-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(0, 2fr);
   gap: 24px;
   padding: 16px 0;
-  border-bottom: 1px solid #eee;
+  border-top: 1px solid var(--border);
 }
 
-.info-label {
-  font-weight: 500;
+.info-row dt {
+  color: var(--gray);
+  font-size: 14px;
 }
 
-.info-value {
+.info-row dd {
+  margin: 0;
   text-align: right;
+  overflow-wrap: anywhere;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 16px;
+.fields {
+  max-width: 540px;
+  display: grid;
+  gap: 20px;
 }
 
-.form-group label {
-  margin-bottom: 6px;
-  font-weight: 500;
+.fields .field {
+  margin: 0;
 }
 
-.form-group input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  box-sizing: border-box;
+.fields .error,
+.fields .success {
+  margin: 0;
 }
 
-.form-group input:focus {
-  outline: none;
-  border-color: #888;
+.profile-info + .success {
+  margin-top: 16px;
+  margin-bottom: 0;
 }
 
-.form-group input:disabled {
-  background: #f5f5f5;
+.buttons {
+  padding-top: 4px;
 }
 
-.button-group {
-  display: flex;
-  gap: 10px;
+@media (max-width: 768px) {
+  .panel {
+    padding: 24px;
+  }
 }
 
-button {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
+@media (max-width: 480px) {
+  .panel {
+    padding: 20px 16px;
+  }
 
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
+  .section-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
 
-.primary-button {
-  background: #222;
-  color: white;
-}
+  .info-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
 
-.secondary-button {
-  background: #eee;
-  color: #222;
-}
+  .info-row dd {
+    text-align: left;
+  }
 
-.message {
-  padding: 10px;
-  margin-bottom: 16px;
-  border-radius: 6px;
-}
-
-.success {
-  background: #e8f5e9;
-}
-
-.error {
-  background: #ffebee;
-}
-
-.breadcrumbs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  margin-bottom: 20px;
-
-  font-size: 14px;
-}
-
-.breadcrumbs a {
-  text-decoration: none;
-}
-
-.breadcrumbs a:hover {
-  text-decoration: underline;
+  .buttons > button {
+    flex: 1 1 auto;
+  }
 }

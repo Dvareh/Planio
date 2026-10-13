@@ -75,4 +75,10 @@ public class BoardController {
 
         boardService.removeParticipant(boardId, userId);
     }
+
+    @Operation(summary = "Leave a board as the current participant")
+    @DeleteMapping("/{boardId}/participants/me")
+    public void leaveBoard(@PathVariable Long boardId) {
+        boardService.leaveBoard(boardId);
+    }
 }

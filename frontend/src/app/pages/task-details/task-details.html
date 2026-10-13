@@ -1,423 +1,215 @@
-<div class="task-page">
+<div class="task-page page">
   @if (isLoading) {
-
-    <p>Loading task...</p>
-
+    <p class="loading" role="status">Loading task...</p>
   } @else if (errorMessage) {
-
-    <p class="error-message">
-      {{ errorMessage }}
-    </p>
-
+    <p class="error" role="alert">{{ errorMessage }}</p>
   } @else if (task) {
+    <header class="task-head">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a routerLink="/dashboard">Dashboard</a>
+        <span aria-hidden="true">/</span>
+        <a [routerLink]="['/boards',task.boardId]">{{ board?.name }}</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{{ task.taskKey }}</span>
+      </nav>
 
-    <div class="task-header">
-      <div>
-
-        <nav class="breadcrumbs">
-
-          <a routerLink="/dashboard">
-            Dashboard
-          </a>
-
-          <span>›</span>
-          <a [routerLink]="['/boards',task.boardId]">
-            {{ board?.name }}
-          </a>
-
-          <span>›</span>
-
-          <span>
-    {{ task.taskKey }}
-  </span>
-
-        </nav>
-
-        @if (!editingTask) {
-
-          <div class="task-title-row">
-            <h1>
-              {{ task.title }}
-            </h1>
-
-            <button type="button" (click)="startEditingTask()" [disabled]="isDeleting">
-              Edit Task
-            </button>
-
-            <button type="button" (click)="deleteTask()" [disabled]="isDeleting">
-              @if (isDeleting) {
-                Deleting...
-              } @else {
-                Delete Task
-              }
+      @if (!editingTask) {
+        <div class="title-row">
+          <h1>{{ task.title }}</h1>
+          <div class="buttons task-buttons">
+            <button type="button" class="btn" (click)="startEditingTask()" [disabled]="isDeleting">Edit task</button>
+            <button type="button" class="btn-danger" (click)="deleteTask()" [disabled]="isDeleting">
+              @if (isDeleting) { Deleting... } @else { Delete task }
             </button>
           </div>
+        </div>
+        @if (deleteErrorMessage) {
+          <p class="error" role="alert">{{ deleteErrorMessage }}</p>
+        }
+      } @else {
+        <section class="edit-form" aria-labelledby="edit-task-heading">
+          <h1 id="edit-task-heading">Edit task</h1>
+          <div class="field">
+            <label for="edit-task-title">Title</label>
+            <input id="edit-task-title" type="text" [(ngModel)]="editTitle">
+          </div>
+          <div class="field">
+            <label for="edit-task-description">Description</label>
+            <textarea id="edit-task-description" [(ngModel)]="editDescription" rows="5"></textarea>
+          </div>
+          <div class="field due-field">
+            <label for="edit-task-due-date">Due date</label>
+            <input id="edit-task-due-date" type="date" [(ngModel)]="editDueDate">
+          </div>
+          @if (editErrorMessage) {
+            <p class="error" role="alert">{{ editErrorMessage }}</p>
+          }
+          <div class="actions">
+            <button type="button" class="btn-main" (click)="saveTask()">Save changes</button>
+            <button type="button" class="btn" (click)="cancelEditingTask()">Cancel</button>
+          </div>
+        </section>
+      }
+    </header>
 
-          @if (deleteErrorMessage) {
-            <p class="error-message" role="alert">
-              {{ deleteErrorMessage }}
-            </p>
+    <div class="task-layout">
+      <div class="main-column">
+        @if (!editingTask) {
+          <section class="panel" aria-labelledby="description-heading">
+            <h2 id="description-heading">Description</h2>
+            @if (task.description) {
+              <p class="description">{{ task.description }}</p>
+            } @else {
+              <p class="empty-text">No description.</p>
+            }
+          </section>
+        }
+
+        <section class="panel" aria-labelledby="comments-heading">
+          <h2 id="comments-heading">Comments</h2>
+          @if (comments.length === 0) {
+            <p class="empty-text">No comments yet.</p>
+          } @else {
+            <div class="comments">
+              @for (comment of comments; track comment.id) {
+                <article class="comment">
+                  <h3 class="author">{{ comment.username }}</h3>
+                  @if (editingCommentId === comment.id && isCurrentUser(comment.userId)) {
+                    <label [for]="'edit-comment-' + comment.id">Edit comment</label>
+                    <textarea [id]="'edit-comment-' + comment.id" [(ngModel)]="editingCommentText" rows="3"></textarea>
+                    <div class="comment-buttons buttons">
+                      <button type="button" class="btn-main btn-small" (click)="saveComment(comment.id)">Save</button>
+                      <button type="button" class="btn btn-small" (click)="editingCommentId = null">Cancel</button>
+                    </div>
+                  } @else {
+                    <p class="comment-text">{{ comment.text }}</p>
+                    @if (isCurrentUser(comment.userId)) {
+                      <div class="comment-buttons buttons">
+                        <button type="button" class="btn-link btn-small" (click)="startEditComment(comment)">Edit</button>
+                        <button type="button" class="btn-link delete-comment btn-small" (click)="deleteComment(comment.id)">Delete</button>
+                      </div>
+                    }
+                  }
+                </article>
+              }
+            </div>
           }
 
-        } @else {
+          <div class="comment-field field">
+            <label for="new-comment">Add a comment</label>
+            <textarea id="new-comment" [(ngModel)]="newCommentText" placeholder="Write a comment..." rows="4"></textarea>
+          </div>
+          @if (commentErrorMessage) {
+            <p class="error" role="alert">{{ commentErrorMessage }}</p>
+          }
+          <button type="button" class="btn-main" (click)="addComment()">Add comment</button>
+        </section>
+      </div>
 
-          <div class="task-edit-form">
-
-            <label>
-              Title
-            </label>
-
-            <input type="text" [(ngModel)]="editTitle">
-
-            <label>
-              Description
-            </label>
-
-            <textarea [(ngModel)]="editDescription" rows="5"></textarea>
-
-            <label>
-              Due Date
-            </label>
-
-            <input type="date" [(ngModel)]="editDueDate">
-
-            @if (editErrorMessage) {
-              <p class="error-message">{{ editErrorMessage }}</p>
-            }
-
-            <div class="task-edit-actions">
-
-              <button type="button" (click)="saveTask()">
-                Save
-              </button>
-
-              <button type="button" (click)="cancelEditingTask()">
-                Cancel
-              </button>
-
+      <aside class="side-column" aria-label="Task details">
+        <section class="panel" aria-labelledby="details-heading">
+          <h2 id="details-heading">Details</h2>
+          <div class="details-list">
+            <div class="task-info-item field">
+              <label for="task-status">Status</label>
+              <select id="task-status" [(ngModel)]="task.status" (change)="changeStatus()">
+                <option value="TODO">To do</option>
+                <option value="IN_PROGRESS">In progress</option>
+                <option value="DONE">Done</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+            </div>
+            <div class="task-info-item field">
+              <label for="task-priority">Priority</label>
+              <select id="task-priority" [(ngModel)]="task.priority" (change)="changePriority()">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="URGENT">Urgent</option>
+              </select>
+            </div>
+            <div class="task-info-item detail">
+              <span>Due date</span>
+              <strong>{{ task.dueDate || 'No due date' }}</strong>
+            </div>
+            <div class="task-info-item detail">
+              <span>Assigned to</span>
+              <strong>{{ getAssignedUserName() }}</strong>
             </div>
           </div>
-        }
-      </div>
-    </div>
+        </section>
 
-    <div class="task-info-grid">
-
-      <div class="task-info-item">
-
-        <span>Status</span>
-
-        <select [(ngModel)]="task.status" (change)="changeStatus()">
-          <option value="TODO">
-            To Do
-          </option>
-
-          <option value="IN_PROGRESS">
-            In Progress
-          </option>
-
-          <option value="DONE">
-            Done
-          </option>
-
-          <option value="CANCELLED">
-            Cancelled
-          </option>
-        </select>
-
-      </div>
-
-
-      <div class="task-info-item">
-        <span>Priority</span>
-
-        <select [(ngModel)]="task.priority" (change)="changePriority()">
-          <option value="LOW">
-            Low
-          </option>
-
-          <option value="MEDIUM">
-            Medium
-          </option>
-
-          <option value="HIGH">
-            High
-          </option>
-
-          <option value="URGENT">
-            Urgent
-          </option>
-        </select>
-
-      </div>
-
-
-      <div class="task-info-item">
-        <span>Due Date</span>
-        <strong>
-          {{ task.dueDate || 'No due date' }}
-        </strong>
-      </div>
-
-
-      <div class="task-info-item">
-        <span>Assigned User</span>
-
-        <strong>
-          {{ getAssignedUserName() }}
-        </strong>
-      </div>
-
-    </div>
-
-    @if (!editingTask) {
-      <section class="task-section">
-        <h2>Description</h2>
-
-        @if (task.description) {
-          <p>
-            {{ task.description }}
-          </p>
-        } @else {
-          <p>
-            No description.
-          </p>
-        }
-      </section>
-    }
-
-    <section class="task-section">
-
-      <h2>Labels</h2>
-
-      @if (task.labels.length > 0) {
-        <div class="task-labels">
-
-          @for (label of task.labels; track label.id) {
-
-            <span class="task-label">
-
-              {{ label.name }}
-
-              <button type="button" class="label-remove-button" (click)="removeLabel(label.id)">
-                ×
-              </button>
-
-            </span>
-
+        <section class="panel" aria-labelledby="labels-heading">
+          <h2 id="labels-heading">Labels</h2>
+          @if (task.labels.length > 0) {
+            <div class="tags">
+              @for (label of task.labels; track label.id) {
+                <span class="tag">
+                  <span>{{ label.name }}</span>
+                  <button type="button" class="remove-tag" [attr.aria-label]="'Remove label ' + label.name" (click)="removeLabel(label.id)">×</button>
+                </span>
+              }
+            </div>
+          } @else {
+            <p class="empty-text">No labels assigned.</p>
           }
-
-        </div>
-
-      } @else {
-
-        <p class="empty-text">
-          No labels assigned.
-        </p>
-
-      }
-
-
-      <h3>Available Labels</h3>
-
-      <div class="available-labels">
-
-        @for (label of availableLabels; track label.id) {
-
-          @if (!hasLabel(label.id)) {
-
-            <button type="button" (click)="addLabel(label.id)">
-              + {{ label.name }}
-            </button>
-
-          }
-
-        }
-
-      </div>
-
-
-      @if (labelErrorMessage) {
-
-        <p class="error-message">
-          {{ labelErrorMessage }}
-        </p>
-
-      }
-
-    </section>
-
-
-    <section class="task-section">
-
-      <h2>Assignment</h2>
-
-      <div class="assignment-controls">
-
-        <label>
-          Assign to
-
-          <select [(ngModel)]="selectedUserId">
-
-            <option [ngValue]="null">
-              Select user
-            </option>
-
-            @for (user of participants; track user.id) {
-              <option [ngValue]="user.id">
-
-                {{ user.username }}
-
-                @if (isCurrentUser(user.id)) {
-                  (me)
-                }
-                - {{ user.email }}
-
-              </option>
-
-            }
-
-          </select>
-        </label>
-
-        <div class="assignment-buttons">
-
-          <button type="button" (click)="assignTask()">
-            Assign
-          </button>
-
-          @if (task.assignedUserId) {
-
-            <button type="button" (click)="unassignTask()">
-              Unassign
-            </button>
-
-          }
-        </div>
-
-      </div>
-
-      @if (assignErrorMessage) {
-
-        <p class="error-message">
-          {{ assignErrorMessage }}
-        </p>
-
-      }
-
-    </section>
-
-
-    <section class="task-section">
-
-      <h2>Comments</h2>
-
-      @if (comments.length === 0) {
-
-        <p class="empty-text">
-          No comments yet.
-        </p>
-
-      } @else {
-
-        @for (comment of comments; track comment.id) {
-
-          <div class="comment">
-
-            <p>
-              <strong>
-                {{ comment.username }}
-              </strong>
-            </p>
-
-            @if (editingCommentId === comment.id && isCurrentUser(comment.userId)) {
-              <textarea [(ngModel)]="editingCommentText" rows="3"></textarea>
-
-              <div class="comment-actions">
-
-                <button type="button" (click)="saveComment(comment.id)">
-                  Save
-                </button>
-
-                <button type="button" (click)="editingCommentId = null">
-                  Cancel
-                </button>
-
-              </div>
-
-            } @else {
-
-              <p>
-                {{ comment.text }}
-              </p>
-
-              @if (isCurrentUser(comment.userId)) {
-                <div class="comment-actions">
-
-                  <button type="button" (click)="startEditComment(comment)">
-                    Edit
-                  </button>
-
-                  <button type="button" (click)="deleteComment(comment.id)">
-                    Delete
-                  </button>
-
-                </div>
+          <h3>Available labels</h3>
+          <div class="tag-options">
+            @for (label of availableLabels; track label.id) {
+              @if (!hasLabel(label.id)) {
+                <button type="button" class="btn btn-small" (click)="addLabel(label.id)">+ {{ label.name }}</button>
               }
             }
           </div>
-        }
-      }
+          @if (labelErrorMessage) {
+            <p class="error" role="alert">{{ labelErrorMessage }}</p>
+          }
+        </section>
 
-      <h3>Add Comment</h3>
-
-      <textarea [(ngModel)]="newCommentText" placeholder="Write a comment..." rows="4"></textarea>
-
-      @if (commentErrorMessage) {
-        <p class="error-message">
-          {{ commentErrorMessage }}
-        </p>
-
-      }
-      <button type="button" (click)="addComment()">
-        Add Comment
-      </button>
-    </section>
-
+        <section class="panel" aria-labelledby="assignment-heading">
+          <h2 id="assignment-heading">Assignment</h2>
+          <div class="assign-form">
+            <div class="field">
+              <label for="task-assignee">Assign to</label>
+              <select id="task-assignee" [(ngModel)]="selectedUserId">
+                <option [ngValue]="null">Select user</option>
+                @for (user of participants; track user.id) {
+                  <option [ngValue]="user.id">
+                    {{ user.username }} @if (isCurrentUser(user.id)) { (me) } - {{ user.email }}
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="assignment-buttons buttons">
+              <button type="button" class="btn-main" (click)="assignTask()">Assign</button>
+              @if (task.assignedUserId) {
+                <button type="button" class="btn" (click)="unassignTask()">Unassign</button>
+              }
+            </div>
+          </div>
+          @if (assignErrorMessage) {
+            <p class="error" role="alert">{{ assignErrorMessage }}</p>
+          }
+        </section>
+      </aside>
+    </div>
   }
-  <section class="task-section">
-    <h2>Activity</h2>
 
+  <section class="panel activity" aria-labelledby="activity-heading">
+    <h2 id="activity-heading">Activity</h2>
     @if (activityErrorMessage) {
-      <p class="error-message">
-        {{ activityErrorMessage }}
-      </p>
-
+      <p class="error" role="alert">{{ activityErrorMessage }}</p>
     } @else if (activities.length === 0) {
-      <p class="empty-text">
-        No activity yet.
-      </p>
-
+      <p class="empty-text">No activity yet.</p>
     } @else {
       <div class="activity-list">
         @for (activity of activities; track activity.id) {
           <div class="activity-item">
-            <p>
-              <strong>
-                {{ activity.username }}
-              </strong>
-              {{ getActivityText(activity) }}
-            </p>
-
-            <small>
-              {{ activity.createdAt | date:'dd.MM.yyyy HH:mm' }}
-            </small>
+            <p><strong>{{ activity.username }}</strong> {{ getActivityText(activity) }}</p>
+            <time>{{ activity.createdAt | date:'dd.MM.yyyy HH:mm' }}</time>
           </div>
         }
       </div>
-
     }
-
   </section>
-
 </div>

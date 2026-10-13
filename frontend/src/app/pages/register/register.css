@@ -1,34 +1,8 @@
-.register {
-  display: flex;
-  justify-content: center;
-  padding: 40px 24px;
+:host {
+  display: block;
 }
 
-.card {
-  width: 100%;
-  max-width: 400px;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-input {
-  padding: 8px;
-}
-
-button {
-  padding: 8px;
-}
-
-.error {
-  margin: 0;
+.hint {
+  color: var(--gray);
+  font-size: 13px;
 }

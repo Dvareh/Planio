@@ -6,10 +6,7 @@ import com.planio.app.dto.TaskDTO;
 import com.planio.app.dto.UpdateTaskDTO;
 import com.planio.app.entity.*;
 import com.planio.app.exceptions.ObjectNotFoundException;
-import com.planio.app.repositories.BoardRepository;
-import com.planio.app.repositories.LabelRepository;
-import com.planio.app.repositories.TaskRepository;
-import com.planio.app.repositories.UserRepository;
+import com.planio.app.repositories.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -41,6 +38,9 @@ public class TaskService {
     );
     private final LabelRepository labelRepository;
     private final TaskActivityService activityService;
+    private final CommentRepository commentRepository;
+    private final NotificationRepository notificationRepository;
+    private final TaskActivityRepository taskActivityRepository;
 
     private TaskDTO mapToDTO(Task task) {
         TaskDTO taskDTO = new TaskDTO();
@@ -206,14 +206,15 @@ public class TaskService {
 
         User currentUser = currentUserService.getCurrentUser();
 
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() ->
-                        new ObjectNotFoundException("Task", id));
+        Task task = taskRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Task", id));
 
-        boardAccessService.checkAccess(
-                task.getBoard(),
-                currentUser
-        );
+        boardAccessService.checkAccess(task.getBoard(), currentUser);
+
+        LocalDate newDueDate = updateTaskDTO.getDueDate();
+
+        if (!Objects.equals(newDueDate, task.getDueDate()) && newDueDate.isBefore(LocalDate.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Due date cannot be in the past");
+        }
 
         String oldTitle = task.getTitle();
         String oldDescription = task.getDescription();
@@ -239,16 +240,24 @@ public class TaskService {
 
     @Transactional
     public void delete(Long id) {
-        log.warn("Deleting task id: {}", id);
-
-        User user = currentUserService.getCurrentUser();
+        User currentUser = currentUserService.getCurrentUser();
 
         Task task = taskRepository.findById(id)
-                        .orElseThrow(() -> new ObjectNotFoundException("Task", id));
+                .orElseThrow(() -> new ObjectNotFoundException("Task", id));
 
-        boardAccessService.checkAccess(task.getBoard(), user);
+        boardAccessService.checkAccess(task.getBoard(), currentUser);
 
-        taskRepository.deleteById(id);
+        notificationRepository.deleteByTask_Id(id);
+        commentRepository.deleteByTask_Id(id);
+        taskActivityRepository.deleteByTask_Id(id);
+
+        task.getLabels().clear();
+
+        taskRepository.flush();
+        taskRepository.delete(task);
+        taskRepository.flush();
+
+        log.info("Task {} deleted", id);
     }
 
     @Transactional(readOnly = true)

@@ -11,8 +11,7 @@ public interface LabelRepository extends JpaRepository<Label, Long> {
 
     List<Label> findByBoard_IdOrderByNameAsc(Long boardId);
 
-    boolean existsByBoard_IdAndNameIgnoreCase(
-            Long boardId,
-            String name
-    );
+    boolean existsByBoard_IdAndNameIgnoreCase(Long boardId, String name);
+
+    void deleteByBoard_Id(Long boardId);
 }

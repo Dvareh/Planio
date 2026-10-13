@@ -1,32 +1,31 @@
-<div class="login">
-  <div class="card">
-    <h1>Login</h1>
+<div class="auth-page">
+  <section class="auth-card" aria-labelledby="login-title">
+    <header class="auth-head">
+      <p class="brand">Planio</p>
+      <h1 id="login-title">Login</h1>
+      <p class="subtitle">Sign in to your workspace.</p>
+    </header>
 
-    <form class="form" (ngSubmit)="onSubmit()">
-
-      <div class="group">
-        <label for="email">Email</label>
-        <input id="email" type="email" name="email" [(ngModel)]="email"/>
+    <form class="auth-form" (ngSubmit)="onSubmit()">
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" name="email" [(ngModel)]="email" autocomplete="username" autocapitalize="none" spellcheck="false">
       </div>
 
-      <div class="group">
-        <label for="password">Password</label>
-        <input id="password" type="password" name="password" [(ngModel)]="password"/>
+      <div class="field">
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password" name="password" [(ngModel)]="password" autocomplete="current-password">
       </div>
 
       @if (errorMessage) {
-        <p class="error">{{ errorMessage }}</p>
+        <p class="error" role="alert">{{ errorMessage }}</p>
       }
 
-      <button type="submit">Login</button>
+      <button type="submit" class="btn-main">Login</button>
 
-      <p>
-        Don't have an account?
-        <a routerLink="/register">
-          Register
-        </a>
+      <p class="auth-footer">
+        Don't have an account? <a routerLink="/register">Register</a>
       </p>
-
     </form>
-  </div>
+  </section>
 </div>
