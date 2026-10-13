@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Locale;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -25,39 +27,42 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthDTO register(RegisterDTO registerDTO) {
+        String email = validateEmailCase(registerDTO.getEmail());
 
-        if (userRepository.existsByEmail(registerDTO.getEmail())) {
+        if (userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
         }
 
         User user = User.builder()
                 .username(registerDTO.getUsername())
-                .email(registerDTO.getEmail())
+                .email(email)
                 .password(passwordEncoder.encode(registerDTO.getPassword()))
                 .role(Roles.USER)
                 .build();
 
         userRepository.save(user);
 
-        String token = jwtService.generateToken(user);
-
-        return new AuthDTO(token);
+        return new AuthDTO(jwtService.generateToken(user));
     }
 
     public AuthDTO login(LoginDTO loginDTO) {
+        String email = validateEmailCase(loginDTO.getEmail());
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginDTO.getEmail(),
-                        loginDTO.getPassword()
-                )
-        );
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, loginDTO.getPassword()));
 
-        User user = userRepository.findByEmail(loginDTO.getEmail())
-                .orElseThrow(() -> new ObjectNotFoundException("User", loginDTO.getEmail()));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ObjectNotFoundException("User", email));
 
-        String token = jwtService.generateToken(user);
+        return new AuthDTO(jwtService.generateToken(user));
+    }
 
-        return new AuthDTO(token);
+    private String validateEmailCase(String email) {
+        if (!email.equals(email.toLowerCase(Locale.ROOT))) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Email must be lowercase"
+            );
+        }
+
+        return email;
     }
 }

@@ -475,10 +475,20 @@ export class TaskDetails {
       return;
     }
 
+    if (!this.editDueDate) {
+      this.editErrorMessage = 'Due date is required.';
+      return;
+    }
+
+    if (this.editDueDate !== this.task.dueDate && this.editDueDate < this.today) {
+      this.editErrorMessage = 'Due date cannot be in the past.';
+      return;
+    }
+
     const request: UpdateTask = {
       title,
       description: this.editDescription.trim(),
-      dueDate: this.editDueDate || null,
+      dueDate: this.editDueDate,
     };
 
     this.taskService.update(this.task.id, request).subscribe({
@@ -490,8 +500,15 @@ export class TaskDetails {
         this.changeDetectorRef.detectChanges();
       },
       error: (error) => {
+        const details = error.error;
 
-        this.editErrorMessage = 'Failed to update task.';
+        this.editErrorMessage =
+          details?.dueDate ||
+          details?.title ||
+          details?.description ||
+          details?.message ||
+          'Failed to update task.';
+
         this.changeDetectorRef.detectChanges();
       },
     });
@@ -574,5 +591,20 @@ export class TaskDetails {
         this.changeDetectorRef.detectChanges();
       }
     });
+  }
+
+  get today(): string {
+    const parts = new Intl.DateTimeFormat('en', {
+      timeZone: 'Europe/Warsaw',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date());
+
+    const year = parts.find(part => part.type === 'year')!.value;
+    const month = parts.find(part => part.type === 'month')!.value;
+    const day = parts.find(part => part.type === 'day')!.value;
+
+    return `${year}-${month}-${day}`;
   }
 }

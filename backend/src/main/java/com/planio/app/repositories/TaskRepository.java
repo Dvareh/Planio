@@ -114,4 +114,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByBoard_IdAndAssignedUser_Id(Long boardId, Long userId);
 
+    List<Task> findByBoard_IdAndLabels_Id(Long boardId, Long labelId);
+
+    List<Task> findByBoard_Id(Long boardId);
+
 }

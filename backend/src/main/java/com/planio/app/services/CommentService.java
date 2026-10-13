@@ -56,6 +56,7 @@ public class CommentService {
         return mapToDTO(createdComment);
     }
 
+    @Transactional(readOnly = true)
     public List<CommentDTO> getByTask(Long taskId) {
 
         log.info("Getting comments for task: {}", taskId);

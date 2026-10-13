@@ -60,4 +60,10 @@ export class BoardService {
       `${this.apiUrl}/${boardId}/participants/${userId}`
     );
   }
+
+  leaveBoard(boardId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/${boardId}/participants/me`
+    );
+  }
 }
