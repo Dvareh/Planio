@@ -13,4 +13,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findByUserOrderBySentAtDesc(User user);
 
     List<Notification> findByUserAndReadFalseOrderBySentAtDesc(User user);
+
+    void deleteByTask_Id(Long taskId);
 }

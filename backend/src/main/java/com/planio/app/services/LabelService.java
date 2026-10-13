@@ -3,10 +3,12 @@ package com.planio.app.services;
 import com.planio.app.dto.LabelDTO;
 import com.planio.app.entity.Board;
 import com.planio.app.entity.Label;
+import com.planio.app.entity.Task;
 import com.planio.app.entity.User;
 import com.planio.app.exceptions.ObjectNotFoundException;
 import com.planio.app.repositories.BoardRepository;
 import com.planio.app.repositories.LabelRepository;
+import com.planio.app.repositories.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,7 +28,9 @@ public class LabelService {
     private final BoardRepository boardRepository;
     private final CurrentUserService currentUserService;
     private final BoardAccessService boardAccessService;
+    private final TaskRepository taskRepository;
 
+    @Transactional(readOnly = true)
     public List<LabelDTO> getBoardLabels(Long boardId) {
 
         User currentUser = currentUserService.getCurrentUser();
@@ -84,18 +88,23 @@ public class LabelService {
 
         User currentUser = currentUserService.getCurrentUser();
 
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new ObjectNotFoundException("Board", boardId));
+        Board board = boardRepository.findById(boardId).orElseThrow(() -> new ObjectNotFoundException("Board", boardId));
 
         boardAccessService.checkOwner(board, currentUser);
 
-        Label label = labelRepository.findById(labelId)
-                .orElseThrow(() -> new ObjectNotFoundException("Label", labelId));
+        Label label = labelRepository.findById(labelId).orElseThrow(() -> new ObjectNotFoundException("Label", labelId));
 
         if (label.getBoard().getId() != boardId) {
             throw new ObjectNotFoundException("Label", labelId);
         }
 
+        List<Task> tasks = taskRepository.findByBoard_IdAndLabels_Id(boardId, labelId);
+
+        for (Task task : tasks) {
+            task.getLabels().removeIf(taskLabel -> taskLabel.getId().equals(labelId));
+        }
+
+        taskRepository.flush();
         labelRepository.delete(label);
 
         log.info("Label {} deleted from board {}", labelId, boardId);

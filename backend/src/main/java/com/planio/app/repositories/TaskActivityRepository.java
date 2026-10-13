@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface TaskActivityRepository extends JpaRepository<TaskActivity, Long> {
     List<TaskActivity> findByTask_IdOrderByCreatedAtDesc(Long taskId);
+
+    void deleteByTask_Id(Long taskId);
 }

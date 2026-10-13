@@ -34,6 +34,31 @@
     Add Task
   </button>
 
+  @if (canLeave()) {
+    <button #leaveButton type="button" (click)="showLeaveConfirm = true" [disabled]="isLeaving">
+      Leave board
+    </button>
+  }
+
+  @if (showLeaveConfirm && canLeave()) {
+    <p>
+      Leave this board? Your assigned tasks will become unassigned.
+      You will lose access to the board.
+    </p>
+
+    <button type="button" (click)="leaveBoard()" [disabled]="isLeaving">
+      {{ isLeaving ? 'Leaving...' : 'Yes, leave board' }}
+    </button>
+
+    <button type="button" (click)="cancelLeave()" [disabled]="isLeaving">
+      Cancel
+    </button>
+
+    @if (leaveError) {
+      <p role="alert">{{ leaveError }}</p>
+    }
+  }
+
   <div class="participants">
     <h2>Members</h2>
 

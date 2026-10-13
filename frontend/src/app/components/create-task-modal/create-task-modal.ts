@@ -46,6 +46,11 @@ export class CreateTaskModal {
       return;
     }
 
+    if (this.task.dueDate < this.today) {
+      this.errorMsg = 'Due date cannot be in the past.';
+      return;
+    }
+
     const newTask: CreateTask = {
       title: this.task.title,
       description: this.task.description,
@@ -62,7 +67,16 @@ export class CreateTaskModal {
       error: (error) => {
         console.error('Failed to create task', error);
 
-        this.errorMsg = 'Failed to create task.';
+        const details = error.error;
+
+        this.errorMsg =
+          details?.dueDate ||
+          details?.title ||
+          details?.description ||
+          details?.boardId ||
+          details?.message ||
+          'Failed to create task.';
+
         this.changeDetectorRef.detectChanges();
       }
     });
@@ -70,5 +84,20 @@ export class CreateTaskModal {
 
   closeModal(): void {
     this.close.emit();
+  }
+
+  get today(): string {
+    const parts = new Intl.DateTimeFormat('en', {
+      timeZone: 'Europe/Warsaw',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date());
+
+    const year = parts.find(part => part.type === 'year')!.value;
+    const month = parts.find(part => part.type === 'month')!.value;
+    const day = parts.find(part => part.type === 'day')!.value;
+
+    return `${year}-${month}-${day}`;
   }
 }

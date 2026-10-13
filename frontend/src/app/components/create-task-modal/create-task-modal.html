@@ -16,7 +16,7 @@
 
     <label>
       Due date
-      <input type="date" [(ngModel)]="task.dueDate">
+      <input type="date" [(ngModel)]="task.dueDate" [min]="today">
     </label>
 
     <label>

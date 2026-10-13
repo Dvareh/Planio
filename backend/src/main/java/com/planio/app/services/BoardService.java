@@ -18,7 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +31,7 @@ public class BoardService {
     private final LabelRepository labelRepository;
     private final TaskRepository taskRepository;
     private final TaskActivityService activityService;
+    private final TaskService taskService;
 
     private BoardDTO mapToDTO(Board board) {
         BoardDTO boardDTO = new BoardDTO();
@@ -107,6 +107,7 @@ public class BoardService {
 
     }
 
+    @Transactional(readOnly = true)
     public BoardDTO getBoardById(Long boardId) {
         log.info("Getting board with id: {}", boardId);
         Board board = boardRepository.findById(boardId)
@@ -139,16 +140,26 @@ public class BoardService {
 
     @Transactional
     public void delete(Long id) {
-        log.warn("Deleting board id: {}", id);
+        User currentUser = currentUserService.getCurrentUser();
 
-        User user = currentUserService.getCurrentUser();
+        Board board = boardRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Board", id));
 
-        Board board = boardRepository.findById(id)
-                        .orElseThrow(() -> new ObjectNotFoundException("Board", id));
+        boardAccessService.checkOwner(board, currentUser);
 
-        boardAccessService.checkOwner(board, user);
+        List<Task> tasks = taskRepository.findByBoard_Id(id);
 
-        boardRepository.deleteById(id);
+        for (Task task : tasks) {
+            taskService.delete(task.getId());
+        }
+
+        labelRepository.deleteByBoard_Id(id);
+        labelRepository.flush();
+
+        board.getParticipants().clear();
+        boardRepository.delete(board);
+
+        log.info("Board {} deleted", id);
     }
 
     @Transactional(readOnly = true)
@@ -161,6 +172,7 @@ public class BoardService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<UserDTO> getParticipants(Long boardId) {
         User user = currentUserService.getCurrentUser();
 
@@ -296,4 +308,30 @@ public class BoardService {
         return generateBoardKey(boardName);
     }
 
+    @Transactional
+    public void leaveBoard(Long boardId) {
+        User currentUser = currentUserService.getCurrentUser();
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ObjectNotFoundException("Board", boardId));
+
+        if (board.getOwner().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Board owner cannot leave the board");
+        }
+
+        boardAccessService.checkAccess(board, currentUser);
+
+        board.getParticipants().removeIf(user -> user.getId().equals(currentUser.getId()));
+
+        List<Task> tasks = taskRepository.findByBoard_IdAndAssignedUser_Id(boardId, currentUser.getId());
+
+        for (Task task : tasks) {
+            activityService.record(task, currentUser, ActivityType.ASSIGNEE_CHANGED, currentUser.getUsername(), null);
+            task.setAssignedUser(null);
+        }
+
+        boardRepository.save(board);
+
+        log.info("User {} left board {}", currentUser.getId(), boardId);
+    }
 }
