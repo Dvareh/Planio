@@ -6,6 +6,8 @@ spring.datasource.username={Username}
 spring.datasource.password={Password}
 
 spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.{Dialect}
+spring.jpa.hibernate.ddl-auto=update
+
 
 jwt.secret={Your secret key}
 jwt.expiration=86400000
