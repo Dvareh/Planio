@@ -2,6 +2,8 @@
 
 Planio is a full-stack task and project management application built with Spring Boot and Angular.
 
+**Live demo:** [Open Planio](https://alekphoto.com/)
+
 The application allows users to organize work using boards and Kanban task management, collaborate with other users, assign tasks, track deadlines, manage priorities and labels, leave comments, receive notifications, and review task activity history.
 
 ---
