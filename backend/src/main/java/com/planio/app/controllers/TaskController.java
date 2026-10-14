@@ -6,8 +6,6 @@ import com.planio.app.dto.UpdateTaskDTO;
 import com.planio.app.entity.TaskPriority;
 import com.planio.app.entity.TaskStatus;
 import com.planio.app.services.TaskService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,24 +17,20 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
-@Tag(name = "Task API", description = "Manage tasks")
 public class TaskController {
 
     private final TaskService taskService;
 
-    @Operation(summary = "Create task")
     @PostMapping
     public TaskDTO create(@RequestBody @Valid TaskDTO taskDTO) {
         return taskService.create(taskDTO);
     }
 
-    @Operation(summary = "Get task by ID")
     @GetMapping("/{id}")
     public TaskDTO getById(@PathVariable Long id) {
         return taskService.getById(id);
     }
 
-    @Operation(summary = "Get tasks with filters")
     @GetMapping
     public Page<TaskDTO> getTasks(
 
@@ -92,19 +86,16 @@ public class TaskController {
         );
     }
 
-    @Operation(summary = "Update task")
     @PutMapping("/{id}")
     public TaskDTO update(@PathVariable Long id, @RequestBody @Valid UpdateTaskDTO updateTaskDTO) {
         return taskService.update(id, updateTaskDTO);
     }
 
-    @Operation(summary = "Delete task")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         taskService.delete(id);
     }
 
-    @Operation(summary = "Get your tasks")
     @GetMapping("/my")
     public List<TaskDTO> getMyTasks() {
         return taskService.getMyTasks();
@@ -115,31 +106,26 @@ public class TaskController {
         return taskService.assignTask(taskId, userId);
     }
 
-    @Operation(summary = "Unassign task")
     @DeleteMapping("/{taskId}/assign")
     public TaskDTO unassignTask(@PathVariable Long taskId) {
         return taskService.unassignTask(taskId);
     }
 
-    @Operation(summary = "Add label to task")
     @PostMapping("/{taskId}/labels/{labelId}")
     public TaskDTO addLabel(@PathVariable Long taskId, @PathVariable Long labelId) {
         return taskService.addLabel(taskId, labelId);
     }
 
-    @Operation(summary = "Remove label from task")
     @DeleteMapping("/{taskId}/labels/{labelId}")
     public TaskDTO removeLabel(@PathVariable Long taskId, @PathVariable Long labelId) {
         return taskService.removeLabel(taskId, labelId);
     }
 
-    @Operation(summary = "Update task status")
     @PutMapping("/{taskId}/status")
     public TaskDTO updateStatus(@PathVariable Long taskId, @RequestParam TaskStatus status) {
         return taskService.updateStatus(taskId, status);
     }
 
-    @Operation(summary = "Update task priority")
     @PutMapping("/{taskId}/priority")
     public TaskDTO updatePriority(@PathVariable Long taskId, @RequestParam TaskPriority priority) {
         return taskService.updatePriority(taskId, priority);
